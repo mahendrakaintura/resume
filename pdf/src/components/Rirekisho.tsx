@@ -67,7 +67,7 @@ const EditableCell = React.memo(
                 />
             );
         }
-        return <div>{value || ""}</div>;
+        return <div className="cell-display">{value || ""}</div>;
     }
 );
 
@@ -102,6 +102,18 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
         ctx.drawImage(bitmap, dx, dy, dw, dh);
         const url = canvas.toDataURL("image/jpeg", 0.92);
         onChange?.({ photoUrl: url });
+    };
+
+    const updateEducation = (i: number, patch: Partial<NonNullable<RirekishoData["education"]>[number]>) => {
+        const list = [...(data.education || [])];
+        list[i] = { ...(list[i] || { from: "", to: "", school: "", note: "" }), ...patch };
+        onChange?.({ education: list });
+    };
+
+    const updateWork = (i: number, patch: Partial<NonNullable<RirekishoData["work"]>[number]>) => {
+        const list = [...(data.work || [])];
+        list[i] = { ...(list[i] || { from: "", to: "", company: "", role: "", note: "" }), ...patch };
+        onChange?.({ work: list });
     };
 
     return (
@@ -387,128 +399,173 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {(data.education || []).map((e, i) => (
-                                <tr key={`edu-${i}`}>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <EditableCell
-                                                field={`education.${i}.from` as any}
-                                                value={(e.from || "").slice(0, 4)}
-                                                editable={editable}
-                                                onChange={(patch) => {
-                                                    const newEducation = [...(data.education || [])];
-                                                    newEducation[i] = { ...newEducation[i], from: Object.values(patch)[0] as string };
-                                                    onChange?.({ education: newEducation });
-                                                }}
-                                            />
-                                        ) : (
-                                            (e.from || "").slice(0, 4)
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <EditableCell
-                                                field={`education.${i}.month` as any}
-                                                value={(e.from || "").slice(5, 7)}
-                                                editable={editable}
-                                                onChange={(patch) => {
-                                                    const newEducation = [...(data.education || [])];
-                                                    const year = (e.from || "").slice(0, 4);
-                                                    const month = Object.values(patch)[0] as string;
-                                                    newEducation[i] = { ...newEducation[i], from: `${year}-${month}` };
-                                                    onChange?.({ education: newEducation });
-                                                }}
-                                            />
-                                        ) : (
-                                            (e.from || "").slice(5, 7)
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <EditableCell
-                                                field={`education.${i}.school` as any}
-                                                value={e.school}
-                                                editable={editable}
-                                                onChange={(patch) => {
-                                                    const newEducation = [...(data.education || [])];
-                                                    newEducation[i] = { ...newEducation[i], school: Object.values(patch)[0] as string };
-                                                    onChange?.({ education: newEducation });
-                                                }}
-                                            />
-                                        ) : (
-                                            `${e.school}${e.to ? ` 〜 ${e.to}` : ""}`
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                            {(data.work || []).map((w, i) => (
-                                <tr key={`work-${i}`}>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <EditableCell
-                                                field={`work.${i}.from` as any}
-                                                value={(w.from || "").slice(0, 4)}
-                                                editable={editable}
-                                                onChange={(patch) => {
-                                                    const newWork = [...(data.work || [])];
-                                                    newWork[i] = { ...newWork[i], from: Object.values(patch)[0] as string };
-                                                    onChange?.({ work: newWork });
-                                                }}
-                                            />
-                                        ) : (
-                                            (w.from || "").slice(0, 4)
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <EditableCell
-                                                field={`work.${i}.month` as any}
-                                                value={(w.from || "").slice(5, 7)}
-                                                editable={editable}
-                                                onChange={(patch) => {
-                                                    const newWork = [...(data.work || [])];
-                                                    const year = (w.from || "").slice(0, 4);
-                                                    const month = Object.values(patch)[0] as string;
-                                                    newWork[i] = { ...newWork[i], from: `${year}-${month}` };
-                                                    onChange?.({ work: newWork });
-                                                }}
-                                            />
-                                        ) : (
-                                            (w.from || "").slice(5, 7)
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <EditableCell
-                                                field={`work.${i}.company` as any}
-                                                value={`${w.company}${w.role ? ` ／ ${w.role}` : ""}`}
-                                                editable={editable}
-                                                onChange={(patch) => {
-                                                    const newWork = [...(data.work || [])];
-                                                    const value = Object.values(patch)[0] as string;
-                                                    const [company, role] = value.split(" ／ ");
-                                                    newWork[i] = { ...newWork[i], company: company || "", role: role || "" };
-                                                    onChange?.({ work: newWork });
-                                                }}
-                                            />
-                                        ) : (
-                                            `${w.company} ${w.role ? `／ ${w.role}` : ""}`
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
+                            {/* Create a combined list of all entries in chronological order */}
+                            {[
+                                ...(data.education || []).map((e, i) => ({ type: 'education' as const, data: e, index: i })),
+                                ...(data.work || []).map((w, i) => ({ type: 'work' as const, data: w, index: i }))
+                            ].map((entry, globalIndex) => {
+                                if (entry.type === 'education') {
+                                    const e = entry.data;
+                                    const i = entry.index;
+                                    return (
+                                        <tr key={`edu-${i}`}>
+                                            <td className="cell">
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        id={`edu-year-${i}`}
+                                                        value={(e.from || "").slice(0, 4)}
+                                                        onChange={(ev) => {
+                                                            const y = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                                                            const mm = (e.from || "").slice(5, 7);
+                                                            updateEducation(i, { from: y ? `${y}-${mm}` : mm ? `-${mm}` : "" });
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    (e.from || "").slice(0, 4)
+                                                )}
+                                            </td>
+                                            <td className="cell">
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        id={`edu-month-${i}`}
+                                                        value={(e.from || "").slice(5, 7)}
+                                                        onChange={(ev) => {
+                                                            const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                            const mm = raw;
+                                                            const yy = (e.from || "").slice(0, 4);
+                                                            updateEducation(i, { from: yy ? `${yy}-${mm}` : mm ? `-${mm}` : "" });
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    (e.from || "").slice(5, 7)
+                                                )}
+                                            </td>
+                                            <td className="cell">
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        className="cell-input"
+                                                        value={e.school || ""}
+                                                        onChange={(ev) => updateEducation(i, { school: ev.target.value })}
+                                                    />
+                                                ) : (
+                                                    `${e.school}${e.to ? ` 〜 ${e.to}` : ""}`
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                } else {
+                                    const w = entry.data;
+                                    const i = entry.index;
+                                    return (
+                                        <tr key={`work-${i}`}>
+                                            <td className="cell">
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        id={`work-year-${i}`}
+                                                        value={(w.from || "").slice(0, 4)}
+                                                        onChange={(ev) => {
+                                                            const y = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                                                            const mm = (w.from || "").slice(5, 7);
+                                                            updateWork(i, { from: y ? `${y}-${mm}` : mm ? `-${mm}` : "" });
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    (w.from || "").slice(0, 4)
+                                                )}
+                                            </td>
+                                            <td className="cell">
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        id={`work-month-${i}`}
+                                                        value={(w.from || "").slice(5, 7)}
+                                                        onChange={(ev) => {
+                                                            const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                            const mm = raw;
+                                                            const yy = (w.from || "").slice(0, 4);
+                                                            updateWork(i, { from: yy ? `${yy}-${mm}` : mm ? `-${mm}` : "" });
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    (w.from || "").slice(5, 7)
+                                                )}
+                                            </td>
+                                            <td className="cell">
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        className="cell-input"
+                                                        value={`${w.company}${w.role ? ` ／ ${w.role}` : ""}`}
+                                                        onChange={(ev) => {
+                                                            const value = ev.target.value;
+                                                            const [company, role] = value.split(" ／ ");
+                                                            updateWork(i, { company: company || "", role: role || "" });
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    `${w.company} ${w.role ? `／ ${w.role}` : ""}`
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                }
+                            })}
                             {Array.from({
                                 length: Math.max(
                                     12 - ((data.education?.length || 0) + (data.work?.length || 0)),
                                     0
                                 ),
-                            }).map((_, i) => (
-                                <tr key={`empty-${i}`}>
-                                    <td className="cell">&nbsp;</td>
-                                    <td className="cell">&nbsp;</td>
-                                    <td className="cell">&nbsp;</td>
-                                </tr>
-                            ))}
+                            }).map((_, i) => {
+                                return (
+                                    <tr key={`empty-${i}`}>
+                                        {editable ? (
+                                            <>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        placeholder=""
+                                                    />
+                                                </td>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        placeholder=""
+                                                    />
+                                                </td>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        className="cell-input"
+                                                        placeholder="学歴・職歴を入力"
+                                                    />
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className="cell">&nbsp;</td>
+                                                <td className="cell">&nbsp;</td>
+                                                <td className="cell">&nbsp;</td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
 
@@ -519,15 +576,44 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 type="button"
                                 className="btn btn-primary text-[9pt] px-[4mm] py-[1mm]"
                                 onClick={() => {
-                                    const newEducation = {
-                                        from: "",
-                                        to: "",
-                                        school: "",
-                                        note: ""
-                                    };
-                                    onChange?.({
-                                        education: [...(data.education || []), newEducation]
-                                    });
+                                    const edu = data.education || [];
+                                    const work = data.work || [];
+                                    const totalEntries = edu.length + work.length;
+
+                                    // Check if last entry (whether edu or work) is complete
+                                    const lastEdu = edu[edu.length - 1];
+                                    const lastWork = work[work.length - 1];
+
+                                    if (lastEdu && (!lastEdu.school?.trim())) {
+                                        alert("前の学歴項目をすべて入力してください。");
+                                        return;
+                                    }
+                                    if (lastWork && (!lastWork.company?.trim())) {
+                                        alert("前の職歴項目をすべて入力してください。");
+                                        return;
+                                    }
+
+                                    const TOTAL_CAP = 22; // 12 base rows + 10 extra rows allowed
+                                    if (totalEntries >= TOTAL_CAP) {
+                                        alert("これ以上追加できません（上限 22 行）。");
+                                        return;
+                                    }
+
+                                    // Always add new education entry at the end by converting any work entries to education
+                                    const newEducation = { from: "", to: "", school: "", note: "" };
+                                    const updatedEducation = [...edu, newEducation];
+                                    onChange?.({ education: updatedEducation });
+
+                                    setTimeout(() => {
+                                        requestAnimationFrame(() => {
+                                            const id = `edu-year-${edu.length}`;
+                                            const el = document.getElementById(id) as HTMLInputElement | null;
+                                            if (el) {
+                                                el.focus();
+                                                el.scrollIntoView({ behavior: "smooth", block: "end" });
+                                            }
+                                        });
+                                    }, 100);
                                 }}
                             >
                                 + 学歴追加
@@ -536,16 +622,44 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 type="button"
                                 className="btn btn-primary text-[9pt] px-[4mm] py-[1mm]"
                                 onClick={() => {
-                                    const newWork = {
-                                        from: "",
-                                        to: "",
-                                        company: "",
-                                        role: "",
-                                        note: ""
-                                    };
-                                    onChange?.({
-                                        work: [...(data.work || []), newWork]
-                                    });
+                                    const edu = data.education || [];
+                                    const work = data.work || [];
+                                    const totalEntries = edu.length + work.length;
+
+                                    // Check if last entry (whether edu or work) is complete
+                                    const lastEdu = edu[edu.length - 1];
+                                    const lastWork = work[work.length - 1];
+
+                                    if (lastEdu && (!lastEdu.school?.trim())) {
+                                        alert("前の学歴項目をすべて入力してください。");
+                                        return;
+                                    }
+                                    if (lastWork && (!lastWork.company?.trim())) {
+                                        alert("前の職歴項目をすべて入力してください。");
+                                        return;
+                                    }
+
+                                    const TOTAL_CAP = 22; // 12 base rows + 10 extra rows allowed
+                                    if (totalEntries >= TOTAL_CAP) {
+                                        alert("これ以上追加できません（上限 22 行）。");
+                                        return;
+                                    }
+
+                                    // Always add new work entry at the end by converting any education entries to work
+                                    const newWork = { from: "", to: "", company: "", role: "", note: "" };
+                                    const updatedWork = [...work, newWork];
+                                    onChange?.({ work: updatedWork });
+
+                                    setTimeout(() => {
+                                        requestAnimationFrame(() => {
+                                            const id = `work-year-${work.length}`;
+                                            const el = document.getElementById(id) as HTMLInputElement | null;
+                                            if (el) {
+                                                el.focus();
+                                                el.scrollIntoView({ behavior: "smooth", block: "end" });
+                                            }
+                                        });
+                                    }, 100);
                                 }}
                             >
                                 + 職歴追加
@@ -579,13 +693,16 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <tr key={`qual-${i}`}>
                                     <td className="cell">
                                         {editable ? (
-                                            <EditableCell
-                                                field={`qualifications.${i}.year` as any}
-                                                value={q.year}
-                                                editable={editable}
-                                                onChange={(patch) => {
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                className="cell-input text-center"
+                                                id={`qual-year-${i}`}
+                                                value={q.year || ""}
+                                                onChange={(ev) => {
+                                                    const year = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
                                                     const newQuals = [...(data.qualifications || [])];
-                                                    newQuals[i] = { ...newQuals[i], year: Object.values(patch)[0] as string };
+                                                    newQuals[i] = { ...newQuals[i], year };
                                                     onChange?.({ qualifications: newQuals });
                                                 }}
                                             />
@@ -595,13 +712,19 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                     </td>
                                     <td className="cell">
                                         {editable ? (
-                                            <EditableCell
-                                                field={`qualifications.${i}.month` as any}
-                                                value={q.month}
-                                                editable={editable}
-                                                onChange={(patch) => {
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                className="cell-input text-center"
+                                                id={`qual-month-${i}`}
+                                                value={q.month || ""}
+                                                onChange={(ev) => {
+                                                    const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                    const mm = raw ? raw.padStart(2, "0") : "";
+                                                    const mmNum = mm ? Math.min(Math.max(parseInt(mm, 10), 1), 12) : 0;
+                                                    const month = mmNum ? String(mmNum).padStart(2, "0") : raw;
                                                     const newQuals = [...(data.qualifications || [])];
-                                                    newQuals[i] = { ...newQuals[i], month: Object.values(patch)[0] as string };
+                                                    newQuals[i] = { ...newQuals[i], month };
                                                     onChange?.({ qualifications: newQuals });
                                                 }}
                                             />
@@ -611,15 +734,18 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                     </td>
                                     <td className="cell">
                                         {editable ? (
-                                            <EditableCell
-                                                field={`qualifications.${i}.qualification` as any}
-                                                value={q.qualification}
-                                                editable={editable}
-                                                onChange={(patch) => {
+                                            <input
+                                                type="text"
+                                                className="cell-input"
+                                                id={`qual-qualification-${i}`}
+                                                value={q.qualification || ""}
+                                                onChange={(ev) => {
+                                                    const qualification = ev.target.value;
                                                     const newQuals = [...(data.qualifications || [])];
-                                                    newQuals[i] = { ...newQuals[i], qualification: Object.values(patch)[0] as string };
+                                                    newQuals[i] = { ...newQuals[i], qualification };
                                                     onChange?.({ qualifications: newQuals });
                                                 }}
+                                                placeholder="資格名を入力"
                                             />
                                         ) : (
                                             q.qualification
@@ -629,13 +755,83 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             ))}
                             {Array.from({
                                 length: Math.max(8 - (data.qualifications?.length || 0), 0),
-                            }).map((_, i) => (
-                                <tr key={`empty-qual-${i}`}>
-                                    <td className="cell">&nbsp;</td>
-                                    <td className="cell">&nbsp;</td>
-                                    <td className="cell">&nbsp;</td>
-                                </tr>
-                            ))}
+                            }).map((_, i) => {
+                                const currentRowIndex = (data.qualifications?.length || 0) + i;
+                                return (
+                                    <tr key={`empty-qual-${i}`}>
+                                        {editable ? (
+                                            <>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        placeholder=""
+                                                        className="cell-input text-center"
+                                                        onBlur={(e) => {
+                                                            const year = e.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                                                            if (!year) return;
+                                                            const quals = [...(data.qualifications || [])];
+                                                            // Add empty rows until we reach the target index
+                                                            while (quals.length <= currentRowIndex) {
+                                                                quals.push({ year: "", month: "", qualification: "" });
+                                                            }
+                                                            quals[currentRowIndex] = { ...quals[currentRowIndex], year };
+                                                            onChange?.({ qualifications: quals });
+                                                            e.currentTarget.value = "";
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        placeholder=""
+                                                        className="cell-input text-center"
+                                                        onBlur={(e) => {
+                                                            const monthRaw = e.target.value.replace(/[^0-9]/g, "");
+                                                            const month = monthRaw.padStart(2, "0").slice(0, 2);
+                                                            if (!month) return;
+                                                            const quals = [...(data.qualifications || [])];
+                                                            // Add empty rows until we reach the target index
+                                                            while (quals.length <= currentRowIndex) {
+                                                                quals.push({ year: "", month: "", qualification: "" });
+                                                            }
+                                                            quals[currentRowIndex] = { ...quals[currentRowIndex], month };
+                                                            onChange?.({ qualifications: quals });
+                                                            e.currentTarget.value = "";
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="資格名を入力"
+                                                        className="cell-input"
+                                                        onBlur={(e) => {
+                                                            const text = e.target.value.trim();
+                                                            if (!text) return;
+                                                            const quals = [...(data.qualifications || [])];
+                                                            // Add empty rows until we reach the target index
+                                                            while (quals.length <= currentRowIndex) {
+                                                                quals.push({ year: "", month: "", qualification: "" });
+                                                            }
+                                                            quals[currentRowIndex] = { ...quals[currentRowIndex], qualification: text };
+                                                            onChange?.({ qualifications: quals });
+                                                            e.currentTarget.value = "";
+                                                        }}
+                                                    />
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className="cell">&nbsp;</td>
+                                                <td className="cell">&nbsp;</td>
+                                                <td className="cell">&nbsp;</td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
 
@@ -646,14 +842,29 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 type="button"
                                 className="btn btn-primary text-[9pt] px-[4mm] py-[1mm]"
                                 onClick={() => {
+                                    const current = data.qualifications?.length || 0;
+                                    const QUAL_CAP = 8; // Maximum 8 qualification rows
+                                    if (current >= QUAL_CAP) {
+                                        alert("これ以上追加できません（上限 8 行）。");
+                                        return;
+                                    }
                                     const newQual = {
                                         year: "",
                                         month: "",
                                         qualification: ""
                                     };
-                                    onChange?.({
-                                        qualifications: [...(data.qualifications || []), newQual]
-                                    });
+                                    const updatedQualifications = [...(data.qualifications || []), newQual];
+                                    onChange?.({ qualifications: updatedQualifications });
+                                    setTimeout(() => {
+                                        requestAnimationFrame(() => {
+                                            const id = `qual-year-${current}`;
+                                            const el = document.getElementById(id) as HTMLInputElement | null;
+                                            if (el) {
+                                                el.focus();
+                                                el.scrollIntoView({ behavior: "smooth", block: "end" });
+                                            }
+                                        });
+                                    }, 100);
                                 }}
                             >
                                 + 資格追加
@@ -788,7 +999,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 通勤時間 / 扶養家族数 / 配偶者の有無 / 配偶者の扶養義務 */}
-                <div className="mt-[8mm]">
+                <div className="mt-[8mm] avoid-break">
                     <table className="w-full border-collapse table-fixed">
                         <colgroup>
                             <col style={{ width: "25%" }} />
@@ -812,7 +1023,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         {editable ? (
                                             <input
                                                 type="text"
-                                                className="w-[16mm] text-center border-none outline-none text-[9pt]"
+                                                inputMode="numeric"
+                                                className="cell-input w-[16mm] text-center text-[9pt]"
                                                 value={data.commuteMinutes || ""}
                                                 onChange={(e) => onChange?.({ commuteMinutes: e.target.value.replace(/[^0-9]/g, "") })}
                                             />
@@ -827,7 +1039,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         {editable ? (
                                             <input
                                                 type="text"
-                                                className="w-[16mm] text-center border-none outline-none text-[9pt]"
+                                                inputMode="numeric"
+                                                className="cell-input w-[16mm] text-center text-[9pt]"
                                                 value={data.dependents || ""}
                                                 onChange={(e) => onChange?.({ dependents: e.target.value.replace(/[^0-9]/g, "") })}
                                             />
@@ -838,39 +1051,69 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                     </div>
                                 </td>
                                 <td className="cell">
-                                    <div className="flex items-center justify-center gap-[6mm] text-[9pt]">
-                                        <button
-                                            type="button"
-                                            className={`min-w-[14mm] text-center ${editable ? "" : "pointer-events-none"}`}
-                                            onClick={() => editable && onChange?.({ spouse: "有" })}
-                                        >
-                                            {data.spouse === "有" ? "◯" : "○"} 有
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`min-w-[14mm] text-center ${editable ? "" : "pointer-events-none"}`}
-                                            onClick={() => editable && onChange?.({ spouse: "無" })}
-                                        >
-                                            {data.spouse === "無" ? "◯" : "○"} 無
-                                        </button>
+                                    <div className="flex items-center justify-center gap-[8mm] text-[9pt]">
+                                        {editable ? (
+                                            <>
+                                                <label className="flex items-center gap-[2mm] cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        name="spouse"
+                                                        value="有"
+                                                        checked={data.spouse === "有"}
+                                                        onChange={() => onChange?.({ spouse: "有" })}
+                                                    />
+                                                    <span>有</span>
+                                                </label>
+                                                <label className="flex items-center gap-[2mm] cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        name="spouse"
+                                                        value="無"
+                                                        checked={data.spouse === "無"}
+                                                        onChange={() => onChange?.({ spouse: "無" })}
+                                                    />
+                                                    <span>無</span>
+                                                </label>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="min-w-[14mm] text-center">{data.spouse === "有" ? "◯" : "○"} 有</span>
+                                                <span className="min-w-[14mm] text-center">{data.spouse === "無" ? "◯" : "○"} 無</span>
+                                            </>
+                                        )}
                                     </div>
                                 </td>
                                 <td className="cell">
-                                    <div className="flex items-center justify-center gap-[6mm] text-[9pt]">
-                                        <button
-                                            type="button"
-                                            className={`min-w-[14mm] text-center ${editable ? "" : "pointer-events-none"}`}
-                                            onClick={() => editable && onChange?.({ spouseDependent: "有" })}
-                                        >
-                                            {data.spouseDependent === "有" ? "◯" : "○"} 有
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`min-w-[14mm] text-center ${editable ? "" : "pointer-events-none"}`}
-                                            onClick={() => editable && onChange?.({ spouseDependent: "無" })}
-                                        >
-                                            {data.spouseDependent === "無" ? "◯" : "○"} 無
-                                        </button>
+                                    <div className="flex items-center justify-center gap-[8mm] text-[9pt]">
+                                        {editable ? (
+                                            <>
+                                                <label className="flex items-center gap-[2mm] cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        name="spouseDependent"
+                                                        value="有"
+                                                        checked={data.spouseDependent === "有"}
+                                                        onChange={() => onChange?.({ spouseDependent: "有" })}
+                                                    />
+                                                    <span>有</span>
+                                                </label>
+                                                <label className="flex items-center gap-[2mm] cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        name="spouseDependent"
+                                                        value="無"
+                                                        checked={data.spouseDependent === "無"}
+                                                        onChange={() => onChange?.({ spouseDependent: "無" })}
+                                                    />
+                                                    <span>無</span>
+                                                </label>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="min-w-[14mm] text-center">{data.spouseDependent === "有" ? "◯" : "○"} 有</span>
+                                                <span className="min-w-[14mm] text-center">{data.spouseDependent === "無" ? "◯" : "○"} 無</span>
+                                            </>
+                                        )}
                                     </div>
                                 </td>
                             </tr>
@@ -879,7 +1122,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 本人希望記入欄 */}
-                <div className="mt-[6mm]">
+                <div className="mt-[6mm] avoid-break">
                     <table className="w-full border-collapse table-fixed">
                         <tbody>
                             <tr>

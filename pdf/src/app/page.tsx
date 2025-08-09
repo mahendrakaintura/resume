@@ -16,8 +16,12 @@ const defaultValues: RirekishoData = {
   addressFurigana: "",
   phone: "",
   email: "",
-  education: [],
-  work: [],
+  education: [
+    { from: "", to: "", school: "", note: "" },
+  ],
+  work: [
+    { from: "", to: "", company: "", role: "", note: "" },
+  ],
   skills: [],
   notes: "",
 };
@@ -57,6 +61,12 @@ export default function Home() {
   };
 
   const onQuickExport = async () => {
+    // If already saved, reuse the print-based export for perfect layout parity
+    if (resumeId) {
+      window.open(`/api/resumes/${resumeId}/pdf`, "_blank");
+      return;
+    }
+    // Fallback: legacy quick export (may differ in layout); recommend saving for exact match
     const payload = { title: (data.name || "履歴書") + " (Quick)", data };
     const res = await fetch("/api/pdf", {
       method: "POST",

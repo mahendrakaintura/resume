@@ -11,15 +11,15 @@ export async function GET(_: Request, context: any) {
   const resume = await prisma.resume.findUnique({ where: { id } });
   if (!resume) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const html = templateHtml(resume.title, resume.data as any);
-
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
     headless: true,
   });
   try {
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const url = `${baseUrl}/print/${id}`;
+    await page.goto(url, { waitUntil: "networkidle0" });
     const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
     await page.close();
     const buildDisposition = (name: string) => {

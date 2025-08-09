@@ -30,6 +30,30 @@ body {
   page-break-after: always;
 }
 
+/* Prevent a block from being split across pages */
+.avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  -webkit-region-break-inside: avoid;
+}
+
+/* Display-only cell content (export/print). Keep generic block so regular fields stay left-aligned. */
+.cell-display {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Header date inputs when in display mode: center text and show dotted border like inputs */
+.rirekisho .r-header-compact .cell-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2mm 0.6mm;
+  border: 0.2mm dotted #777;
+  border-radius: 0;
+}
+
 .print-surface {
   background: #eee;
   padding: 8px;
