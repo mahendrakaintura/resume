@@ -647,6 +647,47 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             </tr>
                         </thead>
                         <tbody>
+                            {Array.from({
+                                length: 8, // Always show 8 empty rows for qualifications template
+                            }).map((_, i) => {
+                                return (
+                                    <tr key={`empty-qual-${i}`}>
+                                        {editable ? (
+                                            <>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        placeholder=""
+                                                    />
+                                                </td>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        placeholder=""
+                                                    />
+                                                </td>
+                                                <td className="cell">
+                                                    <input
+                                                        type="text"
+                                                        className="cell-input"
+                                                        placeholder="資格名を入力"
+                                                    />
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className="cell">&nbsp;</td>
+                                                <td className="cell">&nbsp;</td>
+                                                <td className="cell">&nbsp;</td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            })}
                             {(data.qualifications || []).map((q, i) => (
                                 <tr key={`qual-${i}`}>
                                     <td className="cell">
@@ -665,7 +706,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 }}
                                             />
                                         ) : (
-                                            q.year
+                                            q.year || ""
                                         )}
                                     </td>
                                     <td className="cell">
@@ -687,7 +728,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 }}
                                             />
                                         ) : (
-                                            q.month
+                                            q.month || ""
                                         )}
                                     </td>
                                     <td className="cell">
@@ -698,98 +739,19 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 id={`qual-qualification-${i}`}
                                                 value={q.qualification || ""}
                                                 onChange={(ev) => {
-                                                    const qualification = ev.target.value;
+                                                    const qualificationText = ev.target.value;
                                                     const newQuals = [...(data.qualifications || [])];
-                                                    newQuals[i] = { ...newQuals[i], qualification };
+                                                    newQuals[i] = { ...newQuals[i], qualification: qualificationText };
                                                     onChange?.({ qualifications: newQuals });
                                                 }}
                                                 placeholder="資格名を入力"
                                             />
                                         ) : (
-                                            q.qualification
+                                            q.qualification || ""
                                         )}
                                     </td>
                                 </tr>
                             ))}
-                            {Array.from({
-                                length: Math.max(8 - (data.qualifications?.length || 0), 0),
-                            }).map((_, i) => {
-                                const currentRowIndex = (data.qualifications?.length || 0) + i;
-                                return (
-                                    <tr key={`empty-qual-${i}`}>
-                                        {editable ? (
-                                            <>
-                                                <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        placeholder=""
-                                                        className="cell-input text-center"
-                                                        onBlur={(e) => {
-                                                            const year = e.target.value.replace(/[^0-9]/g, "").slice(0, 4);
-                                                            if (!year) return;
-                                                            const quals = [...(data.qualifications || [])];
-                                                            // Add empty rows until we reach the target index
-                                                            while (quals.length <= currentRowIndex) {
-                                                                quals.push({ year: "", month: "", qualification: "" });
-                                                            }
-                                                            quals[currentRowIndex] = { ...quals[currentRowIndex], year };
-                                                            onChange?.({ qualifications: quals });
-                                                            e.currentTarget.value = "";
-                                                        }}
-                                                    />
-                                                </td>
-                                                <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        placeholder=""
-                                                        className="cell-input text-center"
-                                                        onBlur={(e) => {
-                                                            const monthRaw = e.target.value.replace(/[^0-9]/g, "");
-                                                            const month = monthRaw.padStart(2, "0").slice(0, 2);
-                                                            if (!month) return;
-                                                            const quals = [...(data.qualifications || [])];
-                                                            // Add empty rows until we reach the target index
-                                                            while (quals.length <= currentRowIndex) {
-                                                                quals.push({ year: "", month: "", qualification: "" });
-                                                            }
-                                                            quals[currentRowIndex] = { ...quals[currentRowIndex], month };
-                                                            onChange?.({ qualifications: quals });
-                                                            e.currentTarget.value = "";
-                                                        }}
-                                                    />
-                                                </td>
-                                                <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="資格名を入力"
-                                                        className="cell-input"
-                                                        onBlur={(e) => {
-                                                            const text = e.target.value.trim();
-                                                            if (!text) return;
-                                                            const quals = [...(data.qualifications || [])];
-                                                            // Add empty rows until we reach the target index
-                                                            while (quals.length <= currentRowIndex) {
-                                                                quals.push({ year: "", month: "", qualification: "" });
-                                                            }
-                                                            quals[currentRowIndex] = { ...quals[currentRowIndex], qualification: text };
-                                                            onChange?.({ qualifications: quals });
-                                                            e.currentTarget.value = "";
-                                                        }}
-                                                    />
-                                                </td>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <td className="cell">&nbsp;</td>
-                                                <td className="cell">&nbsp;</td>
-                                                <td className="cell">&nbsp;</td>
-                                            </>
-                                        )}
-                                    </tr>
-                                );
-                            })}
                         </tbody>
                     </table>
 
@@ -800,22 +762,15 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 type="button"
                                 className="btn btn-primary text-[9pt] px-[4mm] py-[1mm]"
                                 onClick={() => {
-                                    const current = data.qualifications?.length || 0;
-                                    const QUAL_CAP = 8; // Maximum 8 qualification rows
-                                    if (current >= QUAL_CAP) {
-                                        alert("これ以上追加できません（上限 8 行）。");
-                                        return;
-                                    }
-                                    const newQual = {
-                                        year: "",
-                                        month: "",
-                                        qualification: ""
-                                    };
+                                    // Add new qualification entry at the end so it appears last in table
+                                    const newQual = { year: "", month: "", qualification: "" };
                                     const updatedQualifications = [...(data.qualifications || []), newQual];
                                     onChange?.({ qualifications: updatedQualifications });
+
                                     setTimeout(() => {
                                         requestAnimationFrame(() => {
-                                            const id = `qual-year-${current}`;
+                                            const currentLength = (data.qualifications || []).length;
+                                            const id = `qual-year-${currentLength}`;
                                             const el = document.getElementById(id) as HTMLInputElement | null;
                                             if (el) {
                                                 el.focus();
