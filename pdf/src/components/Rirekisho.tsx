@@ -458,16 +458,18 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                             inputMode="numeric"
                                                             className="cell-input text-center"
                                                             id={`edu-year-${entry.index}`}
-                                                            value={(e.from || "").slice(0, 4)}
+                                                            value={(e.from || "").split('-')[0] || ""}
                                                             onChange={(ev) => {
                                                                 const y = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
-                                                                const mm = (e.from || "").slice(5, 7);
-                                                                updateEducation(entry.index, { from: y ? `${y}-${mm}` : mm ? `-${mm}` : "" });
+                                                                const currentMonth = (e.from || "").split('-')[1] || "";
+                                                                updateEducation(entry.index, {
+                                                                    from: y || currentMonth ? `${y}-${currentMonth}` : ""
+                                                                });
                                                             }}
                                                         />
                                                     ) : (
                                                         // Show any data that exists, even if partially filled
-                                                        yearPart || (e.from || "").slice(0, 4) || "\u00A0"
+                                                        yearPart || (e.from || "").split('-')[0] || "\u00A0"
                                                     )}
                                                 </td>
                                                 <td className="cell">
@@ -477,17 +479,18 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                             inputMode="numeric"
                                                             className="cell-input text-center"
                                                             id={`edu-month-${entry.index}`}
-                                                            value={(e.from || "").slice(5, 7)}
+                                                            value={(e.from || "").split('-')[1] || ""}
                                                             onChange={(ev) => {
-                                                                const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
-                                                                const mm = raw;
-                                                                const yy = (e.from || "").slice(0, 4);
-                                                                updateEducation(entry.index, { from: yy ? `${yy}-${mm}` : mm ? `-${mm}` : "" });
+                                                                const mm = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                                const currentYear = (e.from || "").split('-')[0] || "";
+                                                                updateEducation(entry.index, {
+                                                                    from: currentYear || mm ? `${currentYear}-${mm}` : ""
+                                                                });
                                                             }}
                                                         />
                                                     ) : (
                                                         // Show any data that exists, even if partially filled
-                                                        monthPart || (e.from || "").slice(5, 7) || "\u00A0"
+                                                        monthPart || (e.from || "").split('-')[1] || "\u00A0"
                                                     )}
                                                 </td>
                                                 <td className="cell">
@@ -520,16 +523,18 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                             inputMode="numeric"
                                                             className="cell-input text-center"
                                                             id={`work-year-${entry.index}`}
-                                                            value={(w.from || "").slice(0, 4)}
+                                                            value={(w.from || "").split('-')[0] || ""}
                                                             onChange={(ev) => {
                                                                 const y = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
-                                                                const mm = (w.from || "").slice(5, 7);
-                                                                updateWork(entry.index, { from: y ? `${y}-${mm}` : mm ? `-${mm}` : "" });
+                                                                const currentMonth = (w.from || "").split('-')[1] || "";
+                                                                updateWork(entry.index, {
+                                                                    from: y || currentMonth ? `${y}-${currentMonth}` : ""
+                                                                });
                                                             }}
                                                         />
                                                     ) : (
                                                         // Show any data that exists, even if partially filled
-                                                        yearPart || (w.from || "").slice(0, 4) || "\u00A0"
+                                                        yearPart || (w.from || "").split('-')[0] || "\u00A0"
                                                     )}
                                                 </td>
                                                 <td className="cell">
@@ -539,17 +544,18 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                             inputMode="numeric"
                                                             className="cell-input text-center"
                                                             id={`work-month-${entry.index}`}
-                                                            value={(w.from || "").slice(5, 7)}
+                                                            value={(w.from || "").split('-')[1] || ""}
                                                             onChange={(ev) => {
-                                                                const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
-                                                                const mm = raw;
-                                                                const yy = (w.from || "").slice(0, 4);
-                                                                updateWork(entry.index, { from: yy ? `${yy}-${mm}` : mm ? `-${mm}` : "" });
+                                                                const mm = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                                const currentYear = (w.from || "").split('-')[0] || "";
+                                                                updateWork(entry.index, {
+                                                                    from: currentYear || mm ? `${currentYear}-${mm}` : ""
+                                                                });
                                                             }}
                                                         />
                                                     ) : (
                                                         // Show any data that exists, even if partially filled
-                                                        monthPart || (w.from || "").slice(5, 7) || "\u00A0"
+                                                        monthPart || (w.from || "").split('-')[1] || "\u00A0"
                                                     )}
                                                 </td>
                                                 <td className="cell">
