@@ -18,10 +18,18 @@ const defaultValues: RirekishoData = {
   email: "",
   education: [
     { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
+    { from: "", to: "", school: "", note: "" },
   ],
-  work: [
-    { from: "", to: "", company: "", role: "", note: "" },
-  ],
+  work: [],
   skills: [],
   notes: "",
 };

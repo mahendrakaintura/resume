@@ -72,6 +72,15 @@ const EditableCell = React.memo(
 );
 
 export default function Rirekisho({ data, editable = false, onChange }: Props) {
+    // Debug logging to see what data we're receiving
+    React.useEffect(() => {
+        console.log('Rirekisho Component Data:', {
+            editable,
+            education: data.education,
+            work: data.work,
+            name: data.name
+        });
+    }, [data, editable]);
     const fileRef = React.useRef<HTMLInputElement | null>(null);
 
     const onPickPhoto = () => {
@@ -399,157 +408,172 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {(data.education || []).map((e, i) => (
-                                <tr key={`edu-${i}`}>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                className="cell-input text-center"
-                                                id={`edu-year-${i}`}
-                                                value={(e.from || "").slice(0, 4)}
-                                                onChange={(ev) => {
-                                                    const y = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
-                                                    const mm = (e.from || "").slice(5, 7);
-                                                    updateEducation(i, { from: y ? `${y}-${mm}` : mm ? `-${mm}` : "" });
-                                                }}
-                                            />
-                                        ) : (
-                                            (e.from || "").slice(0, 4)
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                className="cell-input text-center"
-                                                id={`edu-month-${i}`}
-                                                value={(e.from || "").slice(5, 7)}
-                                                onChange={(ev) => {
-                                                    const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
-                                                    const mm = raw;
-                                                    const yy = (e.from || "").slice(0, 4);
-                                                    updateEducation(i, { from: yy ? `${yy}-${mm}` : mm ? `-${mm}` : "" });
-                                                }}
-                                            />
-                                        ) : (
-                                            (e.from || "").slice(5, 7)
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                className="cell-input"
-                                                value={e.school || ""}
-                                                onChange={(ev) => updateEducation(i, { school: ev.target.value })}
-                                            />
-                                        ) : (
-                                            `${e.school}${e.to ? ` 〜 ${e.to}` : ""}`
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                            {Array.from({
-                                length: 12, // Always show 12 empty rows between education and work
-                            }).map((_, i) => {
-                                return (
-                                    <tr key={`empty-${i}`}>
-                                        {editable ? (
-                                            <>
+                            {(() => {
+                                // Debug: Log all data to console for debugging
+                                if (!editable) {
+                                    console.log('🔍 DEBUG - Export Data:');
+                                    console.log('Education:', data.education);
+                                    console.log('Work:', data.work);
+                                }
+
+                                // Now we have 12 education entries by default, so just render them all
+                                const allEntries: Array<{
+                                    type: 'education' | 'work';
+                                    index: number;
+                                    data: any;
+                                }> = [];
+
+                                // Add all 12 education entries - they behave exactly like the first 2 rows
+                                (data.education || []).forEach((e, i) => {
+                                    console.log(`Education ${i}:`, e);
+                                    allEntries.push({
+                                        type: 'education',
+                                        index: i,
+                                        data: e
+                                    });
+                                });
+
+                                // Add work entries after education  
+                                (data.work || []).forEach((w, i) => {
+                                    console.log(`Work ${i}:`, w);
+                                    allEntries.push({
+                                        type: 'work',
+                                        index: i,
+                                        data: w
+                                    });
+                                });                                // Render all entries with unified logic
+                                return allEntries.map((entry, globalIndex) => {
+                                    if (entry.type === 'education') {
+                                        const e = entry.data;
+                                        // Extract year and month safely
+                                        const yearPart = (e.from || "").slice(0, 4).replace(/[^0-9]/g, "");
+                                        const monthPart = (e.from || "").slice(5, 7).replace(/[^0-9]/g, "");
+
+                                        return (
+                                            <tr key={`edu-${entry.index}`}>
                                                 <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        className="cell-input text-center"
-                                                        placeholder=""
-                                                    />
+                                                    {editable ? (
+                                                        <input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            className="cell-input text-center"
+                                                            id={`edu-year-${entry.index}`}
+                                                            value={(e.from || "").slice(0, 4)}
+                                                            onChange={(ev) => {
+                                                                const y = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                                                                const mm = (e.from || "").slice(5, 7);
+                                                                updateEducation(entry.index, { from: y ? `${y}-${mm}` : mm ? `-${mm}` : "" });
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        // Show any data that exists, even if partially filled
+                                                        yearPart || (e.from || "").slice(0, 4) || "\u00A0"
+                                                    )}
                                                 </td>
                                                 <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        className="cell-input text-center"
-                                                        placeholder=""
-                                                    />
+                                                    {editable ? (
+                                                        <input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            className="cell-input text-center"
+                                                            id={`edu-month-${entry.index}`}
+                                                            value={(e.from || "").slice(5, 7)}
+                                                            onChange={(ev) => {
+                                                                const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                                const mm = raw;
+                                                                const yy = (e.from || "").slice(0, 4);
+                                                                updateEducation(entry.index, { from: yy ? `${yy}-${mm}` : mm ? `-${mm}` : "" });
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        // Show any data that exists, even if partially filled
+                                                        monthPart || (e.from || "").slice(5, 7) || "\u00A0"
+                                                    )}
                                                 </td>
                                                 <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        className="cell-input"
-                                                        placeholder="学歴・職歴を入力"
-                                                    />
+                                                    {editable ? (
+                                                        <input
+                                                            type="text"
+                                                            className="cell-input"
+                                                            value={e.school || ""}
+                                                            onChange={(ev) => updateEducation(entry.index, { school: ev.target.value })}
+                                                        />
+                                                    ) : (
+                                                        // Show school name even if empty string
+                                                        e.school !== undefined ? e.school : "\u00A0"
+                                                    )}
                                                 </td>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <td className="cell">&nbsp;</td>
-                                                <td className="cell">&nbsp;</td>
-                                                <td className="cell">&nbsp;</td>
-                                            </>
-                                        )}
-                                    </tr>
-                                );
-                            })}
-                            {(data.work || []).map((w, i) => (
-                                <tr key={`work-${i}`}>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                className="cell-input text-center"
-                                                id={`work-year-${i}`}
-                                                value={(w.from || "").slice(0, 4)}
-                                                onChange={(ev) => {
-                                                    const y = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
-                                                    const mm = (w.from || "").slice(5, 7);
-                                                    updateWork(i, { from: y ? `${y}-${mm}` : mm ? `-${mm}` : "" });
-                                                }}
-                                            />
-                                        ) : (
-                                            (w.from || "").slice(0, 4)
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                className="cell-input text-center"
-                                                id={`work-month-${i}`}
-                                                value={(w.from || "").slice(5, 7)}
-                                                onChange={(ev) => {
-                                                    const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
-                                                    const mm = raw;
-                                                    const yy = (w.from || "").slice(0, 4);
-                                                    updateWork(i, { from: yy ? `${yy}-${mm}` : mm ? `-${mm}` : "" });
-                                                }}
-                                            />
-                                        ) : (
-                                            (w.from || "").slice(5, 7)
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                className="cell-input"
-                                                value={`${w.company}${w.role ? ` ／ ${w.role}` : ""}`}
-                                                onChange={(ev) => {
-                                                    const value = ev.target.value;
-                                                    const [company, role] = value.split(" ／ ");
-                                                    updateWork(i, { company: company || "", role: role || "" });
-                                                }}
-                                            />
-                                        ) : (
-                                            `${w.company} ${w.role ? `／ ${w.role}` : ""}`
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
+                                            </tr>
+                                        );
+                                    } else if (entry.type === 'work') {
+                                        const w = entry.data;
+                                        // Extract year and month safely
+                                        const yearPart = (w.from || "").slice(0, 4).replace(/[^0-9]/g, "");
+                                        const monthPart = (w.from || "").slice(5, 7).replace(/[^0-9]/g, "");
+
+                                        return (
+                                            <tr key={`work-${entry.index}`}>
+                                                <td className="cell">
+                                                    {editable ? (
+                                                        <input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            className="cell-input text-center"
+                                                            id={`work-year-${entry.index}`}
+                                                            value={(w.from || "").slice(0, 4)}
+                                                            onChange={(ev) => {
+                                                                const y = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                                                                const mm = (w.from || "").slice(5, 7);
+                                                                updateWork(entry.index, { from: y ? `${y}-${mm}` : mm ? `-${mm}` : "" });
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        // Show any data that exists, even if partially filled
+                                                        yearPart || (w.from || "").slice(0, 4) || "\u00A0"
+                                                    )}
+                                                </td>
+                                                <td className="cell">
+                                                    {editable ? (
+                                                        <input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            className="cell-input text-center"
+                                                            id={`work-month-${entry.index}`}
+                                                            value={(w.from || "").slice(5, 7)}
+                                                            onChange={(ev) => {
+                                                                const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                                const mm = raw;
+                                                                const yy = (w.from || "").slice(0, 4);
+                                                                updateWork(entry.index, { from: yy ? `${yy}-${mm}` : mm ? `-${mm}` : "" });
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        // Show any data that exists, even if partially filled
+                                                        monthPart || (w.from || "").slice(5, 7) || "\u00A0"
+                                                    )}
+                                                </td>
+                                                <td className="cell">
+                                                    {editable ? (
+                                                        <input
+                                                            type="text"
+                                                            className="cell-input"
+                                                            value={`${w.company || ""}${w.role ? ` ／ ${w.role}` : ""}`}
+                                                            onChange={(ev) => {
+                                                                const value = ev.target.value;
+                                                                const [company, role] = value.split(" ／ ");
+                                                                updateWork(entry.index, { company: company || "", role: role || "" });
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        // Show company data even if empty string
+                                                        w.company !== undefined ? `${w.company}${w.role ? ` ／ ${w.role}` : ""}` : "\u00A0"
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    }
+                                });
+                            })()}
                         </tbody>
                     </table>
 
@@ -570,14 +594,14 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         return;
                                     }
 
-                                    // Add new education entry to WORK array so it appears last in table
-                                    const newEducation = { from: "", to: "", company: "", role: "", note: "" };
-                                    const updatedWork = [...work, newEducation];
-                                    onChange?.({ work: updatedWork });
+                                    // Add new education entry to EDUCATION array so it shows properly
+                                    const newEducation = { from: "", to: "", school: "", note: "" };
+                                    const updatedEducation = [...edu, newEducation];
+                                    onChange?.({ education: updatedEducation });
 
                                     setTimeout(() => {
                                         requestAnimationFrame(() => {
-                                            const id = `work-year-${work.length}`;
+                                            const id = `edu-year-${edu.length}`;
                                             const el = document.getElementById(id) as HTMLInputElement | null;
                                             if (el) {
                                                 el.focus();
@@ -706,7 +730,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 }}
                                             />
                                         ) : (
-                                            q.year || ""
+                                            q.year || "\u00A0"
                                         )}
                                     </td>
                                     <td className="cell">
@@ -728,7 +752,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 }}
                                             />
                                         ) : (
-                                            q.month || ""
+                                            q.month || "\u00A0"
                                         )}
                                     </td>
                                     <td className="cell">
@@ -747,7 +771,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 placeholder="資格名を入力"
                                             />
                                         ) : (
-                                            q.qualification || ""
+                                            q.qualification || "\u00A0"
                                         )}
                                     </td>
                                 </tr>
