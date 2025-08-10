@@ -48,18 +48,20 @@ const EditableCell = React.memo(
         editable,
         onChange,
         placeholder,
+        className,
     }: {
         field: keyof RirekishoData;
         value?: string;
         editable: boolean;
         onChange?: (patch: Partial<RirekishoData>) => void;
         placeholder?: string;
+        className?: string;
     }) => {
         if (editable) {
             return (
                 <input
                     type="text"
-                    className="cell-input"
+                    className={`cell-input ${className || ""}`}
                     value={value || ""}
                     placeholder={placeholder || ""}
                     onChange={(e) => onChange?.({ [field]: e.target.value } as any)}
@@ -67,7 +69,7 @@ const EditableCell = React.memo(
                 />
             );
         }
-        return <div className="cell-display">{value || ""}</div>;
+        return <div className={`cell-display ${className || ""}`}>{value || ""}</div>;
     }
 );
 
@@ -126,7 +128,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
     };
 
     return (
-        <div className="text-black">
+        <div className={`text-black ${editable ? 'responsive-edit' : ''}`}>
             {/* Page 1 */}
             <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho">
                 {/* Title and date */}
@@ -239,12 +241,13 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                             onChange={onChange}
                                         />
                                     </td>
-                                    <td className="cell">
+                                    <td className="cell text-center">
                                         <EditableCell
                                             field="gender"
                                             value={data.gender || ""}
                                             editable={editable}
                                             onChange={onChange}
+                                            className="text-center"
                                         />
                                     </td>
                                 </tr>
@@ -441,8 +444,20 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         index: i,
                                         data: w
                                     });
-                                });                                // Render all entries with unified logic
-                                return allEntries.map((entry, globalIndex) => {
+                                });
+
+                                // In export mode, filter out empty entries to avoid blank rows
+                                const entriesToRender = editable ? allEntries : allEntries.filter(entry => {
+                                    const data = entry.data;
+                                    if (entry.type === 'education') {
+                                        return data.from || data.to || data.school || data.note;
+                                    } else {
+                                        return data.from || data.to || data.company || data.role || data.note;
+                                    }
+                                });
+
+                                // Render all entries with unified logic
+                                return entriesToRender.map((entry, globalIndex) => {
                                     if (entry.type === 'education') {
                                         const e = entry.data;
                                         // Extract year and month safely
@@ -661,11 +676,6 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
 
             {/* Page 2 - 履歴書 (続き) */}
             <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho">
-                {/* Page indicator */}
-                <div className="text-center mb-[6mm] text-[10pt] text-gray-600 border-b border-gray-300 pb-[2mm]">
-                    履歴書 - 2ページ目
-                </div>
-
                 {/* 免許・資格 Section */}
                 <div className="mt-[6mm]">
                     <table className="w-full border-collapse table-fixed">
@@ -677,8 +687,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {/* Render all qualification entries - same logic as education */}
-                            {(data.qualifications || []).map((q, i) => (
+                            {/* Render all qualification entries - filter empty ones in export mode */}
+                            {(editable ? (data.qualifications || []) : (data.qualifications || []).filter(q => q.year || q.month || q.qualification)).map((q, i) => (
                                 <tr key={`qual-${i}`}>
                                     <td className="cell">
                                         {editable ? (
@@ -859,7 +869,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <th className="cell label w-[30mm] text-left" style={{ borderBottomStyle: "dotted", textAlign: "left" }}>自己ＰＲ</th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={{ height: "40mm", borderTop: "0" }}>
+                                <td className="cell p-[2mm]" style={{ height: "45mm", borderTop: "0" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -883,7 +893,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <th className="cell label w-[30mm] text-left" style={{ borderBottomStyle: "dotted", textAlign: "left" }}>志望動機</th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={{ height: "40mm", borderTop: "0" }}>
+                                <td className="cell p-[2mm]" style={{ height: "50mm", borderTop: "0" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -1032,7 +1042,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 </th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={{ height: "24mm" }}>
+                                <td className="cell p-[2mm]" style={{ height: "30mm" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
