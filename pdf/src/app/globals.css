@@ -280,11 +280,12 @@ body {
 }
 
 @media (max-width: 768px) {
+
   /* Mobile styles for edit mode only */
   .responsive-edit .rirekisho {
     font-size: 9pt;
   }
-  
+
   .responsive-edit .a4 {
     width: 100%;
     min-width: 320px;
@@ -293,42 +294,42 @@ body {
     padding: 4mm !important;
     box-sizing: border-box;
   }
-  
+
   .responsive-edit .r-title {
     font-size: 18pt;
     letter-spacing: 4px;
     text-align: center;
     margin-bottom: 4mm;
   }
-  
+
   /* Date section mobile adjustments */
   .responsive-edit .items-start {
     align-items: center !important;
     text-align: center;
   }
-  
+
   .responsive-edit div[class*="pr-["] {
     padding-right: 0 !important;
   }
-  
+
   /* Make tables responsive */
   .responsive-edit .rirekisho table {
     font-size: 8pt;
   }
-  
+
   .responsive-edit .rirekisho .cell {
     padding: 1mm;
     font-size: 8pt;
     white-space: normal;
     word-wrap: break-word;
   }
-  
+
   .responsive-edit .cell-input {
     padding: 1mm;
     font-size: 8pt;
     min-height: 24px;
   }
-  
+
   /* Photo section adjustments */
   .responsive-edit .photo-slot {
     position: relative !important;
@@ -338,22 +339,22 @@ body {
     right: auto !important;
     top: auto !important;
   }
-  
+
   /* Adjust photo container */
   .responsive-edit .rirekisho div[class*="pr-"] {
     padding-right: 0 !important;
   }
-  
+
   /* Stack elements vertically on mobile */
   .responsive-edit .flex {
     flex-direction: column !important;
     gap: 2mm !important;
   }
-  
+
   .responsive-edit .justify-between {
     justify-content: flex-start !important;
   }
-  
+
   /* Date section specific fixes */
   .responsive-edit .r-header-compact {
     flex-direction: column !important;
@@ -362,22 +363,22 @@ body {
     width: 100% !important;
     text-align: center !important;
   }
-  
+
   .responsive-edit .r-header-compact .flex {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: center !important;
   }
-  
+
   .responsive-edit .r-header-compact span {
     font-size: 9pt !important;
   }
-  
+
   .responsive-edit .r-header-compact input {
     width: 8mm !important;
     text-align: center !important;
   }
-  
+
   /* Button adjustments */
   .responsive-edit .btn {
     width: 100%;
@@ -385,7 +386,7 @@ body {
     padding: 2mm;
     font-size: 9pt;
   }
-  
+
   /* Text areas */
   .responsive-edit textarea {
     min-height: 60px !important;
@@ -393,25 +394,26 @@ body {
 }
 
 @media (max-width: 480px) {
+
   /* Extra small mobile devices */
   .responsive-edit .a4 {
     padding: 2mm !important;
   }
-  
+
   .responsive-edit .rirekisho {
     font-size: 8pt;
   }
-  
+
   .responsive-edit .rirekisho .cell {
     padding: 0.5mm;
     font-size: 7pt;
   }
-  
+
   .responsive-edit .cell-input {
     font-size: 7pt;
     min-height: 20px;
   }
-  
+
   .responsive-edit .r-title {
     font-size: 16pt;
     letter-spacing: 2px;
