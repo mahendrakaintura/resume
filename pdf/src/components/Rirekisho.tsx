@@ -671,47 +671,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {Array.from({
-                                length: 8, // Always show 8 empty rows for qualifications template
-                            }).map((_, i) => {
-                                return (
-                                    <tr key={`empty-qual-${i}`}>
-                                        {editable ? (
-                                            <>
-                                                <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        className="cell-input text-center"
-                                                        placeholder=""
-                                                    />
-                                                </td>
-                                                <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        className="cell-input text-center"
-                                                        placeholder=""
-                                                    />
-                                                </td>
-                                                <td className="cell">
-                                                    <input
-                                                        type="text"
-                                                        className="cell-input"
-                                                        placeholder="資格名を入力"
-                                                    />
-                                                </td>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <td className="cell">&nbsp;</td>
-                                                <td className="cell">&nbsp;</td>
-                                                <td className="cell">&nbsp;</td>
-                                            </>
-                                        )}
-                                    </tr>
-                                );
-                            })}
+                            {/* Render all qualification entries - same logic as education */}
                             {(data.qualifications || []).map((q, i) => (
                                 <tr key={`qual-${i}`}>
                                     <td className="cell">
@@ -760,12 +720,10 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                             <input
                                                 type="text"
                                                 className="cell-input"
-                                                id={`qual-qualification-${i}`}
                                                 value={q.qualification || ""}
                                                 onChange={(ev) => {
-                                                    const qualificationText = ev.target.value;
                                                     const newQuals = [...(data.qualifications || [])];
-                                                    newQuals[i] = { ...newQuals[i], qualification: qualificationText };
+                                                    newQuals[i] = { ...newQuals[i], qualification: ev.target.value };
                                                     onChange?.({ qualifications: newQuals });
                                                 }}
                                                 placeholder="資格名を入力"

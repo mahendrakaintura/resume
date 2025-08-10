@@ -32,6 +32,18 @@ const defaultValues: RirekishoData = {
   work: [],
   skills: [],
   notes: "",
+  qualifications: [
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+    { year: "", month: "", qualification: "" },
+  ],
 };
 
 export default function Home() {
