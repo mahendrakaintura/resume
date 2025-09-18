@@ -1,8 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
-import puppeteer from "puppeteer";
 
-export const dynamic = "force-dynamic";
+// Force Node.js runtime (Puppeteer not supported on edge runtime)
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic"; // still dynamic because we render arbitrary data
+
+async function getBrowser() {
+    // Dynamic import so that the module (and its optional Chromium download logic)
+    // is only evaluated when this route is actually hit.
+    const puppeteer = (await import("puppeteer")).default;
+    // Allow using system-installed Chrome if Puppeteer wasn't able to download (network restricted envs)
+    const executablePath = process.env.CHROME_PATH || undefined; // user can set CHROME_PATH
+    return puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        executablePath,
+    });
+}
 
 export async function POST(req: Request) {
     try {
@@ -13,7 +27,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid body: expected { title, data }" }, { status: 400 });
         }
 
-        const browser = await puppeteer.launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"], headless: true });
+        const browser = await getBrowser();
         try {
             const page = await browser.newPage();
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -22,7 +36,27 @@ export async function POST(req: Request) {
             await page.evaluate((payload) => {
                 localStorage.setItem("rirekisho:unsaved", JSON.stringify(payload));
             }, data);
-            await page.goto(`${baseUrl}/print/unsaved`, { waitUntil: "networkidle0" });
+            await page.goto(`${baseUrl}/print/unsaved`, { waitUntil: "domcontentloaded" });
+            // Wait for the React client component to hydrate and load data from localStorage.
+            // The PrintUnsavedClient shows a div with class 'print-surface' once data is loaded.
+            await page.waitForSelector('.print-surface', { timeout: 5000 }).catch(() => { });
+            // Extra guard: ensure name (or some field) exists; if not, force inject directly.
+            const hasData = await page.evaluate(() => {
+                const root = document.querySelector('.print-surface');
+                if (!root) return false;
+                return root.textContent?.trim().length ? true : false;
+            });
+            if (!hasData) {
+                // Fallback: directly inject HTML? Simpler: reload data script.
+                await page.evaluate(() => {
+                    const raw = localStorage.getItem('rirekisho:unsaved');
+                    if (!raw) return;
+                    // Trigger a manual React reload by dispatching a storage event
+                    window.dispatchEvent(new StorageEvent('storage', { key: 'rirekisho:unsaved', newValue: raw }));
+                });
+                // Small delay to allow React to re-render after storage event
+                await new Promise((res) => setTimeout(res, 300));
+            }
             const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
             await page.close();
             const buildDisposition = (name: string) => {

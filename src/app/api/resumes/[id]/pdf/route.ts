@@ -1,9 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import puppeteer from "puppeteer";
 
+export const runtime = "nodejs"; // Puppeteer requires Node.js runtime
 export const dynamic = "force-dynamic";
+
+async function getBrowser() {
+  const puppeteer = (await import("puppeteer")).default;
+  const executablePath = process.env.CHROME_PATH || undefined;
+  return puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    executablePath,
+  });
+}
 
 export async function GET(_: Request, context: any) {
   const { id } = (await context.params) ?? context.params ?? {};
@@ -11,10 +21,7 @@ export async function GET(_: Request, context: any) {
   const resume = await prisma.resume.findUnique({ where: { id } });
   if (!resume) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    headless: true,
-  });
+  const browser = await getBrowser();
   try {
     const page = await browser.newPage();
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
