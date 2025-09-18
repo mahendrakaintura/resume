@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Rirekisho, { type RirekishoData } from "@/components/Rirekisho";
 
 const defaultValues: RirekishoData = {
@@ -51,9 +51,39 @@ export default function Home() {
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [data, setData] = useState<RirekishoData>(defaultValues);
 
+  // Load draft from localStorage once on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("rirekisho:draft");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          setData((prev) => ({ ...prev, ...parsed }));
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // Autosave draft whenever data changes (debounced slightly)
+  useEffect(() => {
+    const id = setTimeout(() => {
+      try {
+        localStorage.setItem("rirekisho:draft", JSON.stringify(data));
+      } catch { /* ignore */ }
+    }, 200);
+    return () => clearTimeout(id);
+  }, [data]);
+
   const handleChange = useCallback((patch: Partial<RirekishoData>) => {
     setData((prev) => ({ ...prev, ...patch }));
   }, []);
+
+  const onClear = () => {
+    if (!confirm("全ての入力をクリアしますか？ (This will clear unsaved local draft)")) return;
+    try { localStorage.removeItem("rirekisho:draft"); } catch { /* ignore */ }
+    setData(defaultValues);
+    setResumeId(null);
+  };
 
   const onSave = async () => {
     setSaving(true);
@@ -107,6 +137,7 @@ export default function Home() {
     <div className="min-h-screen p-6 bg-slate-50">
       <div className="flex items-center gap-2 mb-4">
         <button onClick={onSave} disabled={saving} className="btn-primary">{saving ? "Saving..." : "Save"}</button>
+        <button onClick={onClear} className="btn text-red-600 border-red-300">Clear</button>
         <button onClick={onExport} className="btn">Export PDF (A4 x2)</button>
         <button onClick={onQuickExport} className="btn">Quick Export (no save)</button>
         {resumeId && <span className="text-sm text-gray-600">ID: {resumeId}</span>}
