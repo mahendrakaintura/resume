@@ -85,9 +85,43 @@ body {
   padding: 1.6mm 2mm;
   vertical-align: middle;
   white-space: nowrap;
+  /* default: single line for inputs */
   overflow: visible;
   font-size: 10pt;
   box-sizing: border-box;
+}
+
+/* Allow wrapped multi-line content (used in display mode so long sentences stay inside the cell) */
+.rirekisho .cell-wrap {
+  white-space: normal !important;
+  word-break: break-word;
+  /* generic */
+  overflow-wrap: anywhere;
+  /* modern */
+  line-break: strict;
+  /* Japanese */
+}
+
+/* When displaying (non-editable) long work history / education lines, keep vertical alignment at top */
+.rirekisho td.cell.cell-wrap {
+  vertical-align: top;
+}
+
+/* Standard baseline heights (min-height so they can grow but keep layout stable) */
+.rirekisho .h-section-small {
+  min-height: 30mm;
+}
+
+.rirekisho .h-section-medium {
+  min-height: 42mm;
+}
+
+.rirekisho .h-section-large {
+  min-height: 48mm;
+}
+
+.rirekisho .h-section-request {
+  min-height: 35mm;
 }
 
 .cell-input {

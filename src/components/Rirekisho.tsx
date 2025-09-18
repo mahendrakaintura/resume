@@ -127,6 +127,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
         onChange?.({ work: list });
     };
 
+    const isExport = !editable; // export/print mode (non-editable)
+
     return (
         <div className={`text-black ${editable ? 'responsive-edit' : ''}`}>
             {/* Page 1 */}
@@ -508,7 +510,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         monthPart || (e.from || "").split('-')[1] || "\u00A0"
                                                     )}
                                                 </td>
-                                                <td className="cell">
+                                                <td className={editable ? "cell" : "cell cell-wrap"}>
                                                     {editable ? (
                                                         <input
                                                             type="text"
@@ -573,7 +575,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         monthPart || (w.from || "").split('-')[1] || "\u00A0"
                                                     )}
                                                 </td>
-                                                <td className="cell">
+                                                <td className={editable ? "cell" : "cell cell-wrap"}>
                                                     {editable ? (
                                                         <input
                                                             type="text"
@@ -834,7 +836,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         </thead>
                         <tbody>
                             <tr>
-                                <td className="cell align-top p-[2mm]" style={{ height: "28mm", borderRightStyle: "dotted" }}>
+                                <td className="cell align-top p-[2mm]" style={isExport ? { minHeight: "28mm", borderRightStyle: "dotted" } : { height: "28mm", borderRightStyle: "dotted" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -845,7 +847,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         <div className="text-[9pt] whitespace-pre-wrap">{data.specialty}</div>
                                     )}
                                 </td>
-                                <td className="cell align-top p-[2mm]" style={{ height: "28mm" }}>
+                                <td className="cell align-top p-[2mm]" style={isExport ? { minHeight: "28mm" } : { height: "28mm" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -869,7 +871,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <th className="cell label w-[30mm] text-left" style={{ borderBottomStyle: "dotted", textAlign: "left" }}>自己ＰＲ</th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={{ height: "45mm", borderTop: "0" }}>
+                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "45mm", borderTop: "0" } : { height: "45mm", borderTop: "0" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -893,7 +895,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <th className="cell label w-[30mm] text-left" style={{ borderBottomStyle: "dotted", textAlign: "left" }}>志望動機</th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={{ height: "50mm", borderTop: "0" }}>
+                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "50mm", borderTop: "0" } : { height: "50mm", borderTop: "0" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -1042,7 +1044,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 </th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={{ height: "30mm" }}>
+                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "30mm" } : { height: "30mm" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
