@@ -449,7 +449,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 });
 
                                 // In export mode, filter out empty entries to avoid blank rows
-                                const entriesToRender = editable ? allEntries : allEntries.filter(entry => {
+                                const filtered = editable ? allEntries : allEntries.filter(entry => {
                                     const data = entry.data;
                                     if (entry.type === 'education') {
                                         return data.from || data.to || data.school || data.note;
@@ -457,6 +457,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         return data.from || data.to || data.company || data.role || data.note;
                                     }
                                 });
+                                const entriesToRender = filtered;
 
                                 // Render all entries with unified logic
                                 return entriesToRender.map((entry, globalIndex) => {
@@ -689,69 +690,87 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {/* Render all qualification entries - filter empty ones in export mode */}
-                            {(editable ? (data.qualifications || []) : (data.qualifications || []).filter(q => q.year || q.month || q.qualification)).map((q, i) => (
-                                <tr key={`qual-${i}`}>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                className="cell-input text-center"
-                                                id={`qual-year-${i}`}
-                                                value={q.year || ""}
-                                                onChange={(ev) => {
-                                                    const year = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
-                                                    const newQuals = [...(data.qualifications || [])];
-                                                    newQuals[i] = { ...newQuals[i], year };
-                                                    onChange?.({ qualifications: newQuals });
-                                                }}
-                                            />
-                                        ) : (
-                                            q.year || "\u00A0"
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                className="cell-input text-center"
-                                                id={`qual-month-${i}`}
-                                                value={q.month || ""}
-                                                onChange={(ev) => {
-                                                    const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
-                                                    const mm = raw ? raw.padStart(2, "0") : "";
-                                                    const mmNum = mm ? Math.min(Math.max(parseInt(mm, 10), 1), 12) : 0;
-                                                    const month = mmNum ? String(mmNum).padStart(2, "0") : raw;
-                                                    const newQuals = [...(data.qualifications || [])];
-                                                    newQuals[i] = { ...newQuals[i], month };
-                                                    onChange?.({ qualifications: newQuals });
-                                                }}
-                                            />
-                                        ) : (
-                                            q.month || "\u00A0"
-                                        )}
-                                    </td>
-                                    <td className="cell">
-                                        {editable ? (
-                                            <input
-                                                type="text"
-                                                className="cell-input"
-                                                value={q.qualification || ""}
-                                                onChange={(ev) => {
-                                                    const newQuals = [...(data.qualifications || [])];
-                                                    newQuals[i] = { ...newQuals[i], qualification: ev.target.value };
-                                                    onChange?.({ qualifications: newQuals });
-                                                }}
-                                                placeholder="資格名を入力"
-                                            />
-                                        ) : (
-                                            q.qualification || "\u00A0"
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
+                            {(() => {
+                                const provided = (data.qualifications || []);
+                                const filtered = editable ? provided : provided.filter(q => q.year || q.month || q.qualification);
+                                const actualCount = filtered.length;
+                                const MIN_QUAL_ROWS_EXPORT = 10;
+                                const rows = !editable
+                                    ? (() => {
+                                        const arr = [...filtered];
+                                        while (arr.length < MIN_QUAL_ROWS_EXPORT) {
+                                            arr.push({ year: "", month: "", qualification: "" } as any);
+                                        }
+                                        return arr;
+                                    })()
+                                    : filtered;
+                                return rows.map((q, i) => {
+                                    const isFiller = !editable && i >= actualCount;
+                                    const fillerStyle = isFiller ? { height: "10mm" } : undefined;
+                                    return (
+                                        <tr key={`qual-${i}`}>
+                                            <td className="cell">
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        id={`qual-year-${i}`}
+                                                        value={q.year || ""}
+                                                        onChange={(ev) => {
+                                                            const year = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                                                            const newQuals = [...(data.qualifications || [])];
+                                                            newQuals[i] = { ...newQuals[i], year };
+                                                            onChange?.({ qualifications: newQuals });
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    q.year || "\u00A0"
+                                                )}
+                                            </td>
+                                            <td className="cell" style={fillerStyle}>
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        className="cell-input text-center"
+                                                        id={`qual-month-${i}`}
+                                                        value={q.month || ""}
+                                                        onChange={(ev) => {
+                                                            const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                            const mm = raw ? raw.padStart(2, "0") : "";
+                                                            const mmNum = mm ? Math.min(Math.max(parseInt(mm, 10), 1), 12) : 0;
+                                                            const month = mmNum ? String(mmNum).padStart(2, "0") : raw;
+                                                            const newQuals = [...(data.qualifications || [])];
+                                                            newQuals[i] = { ...newQuals[i], month };
+                                                            onChange?.({ qualifications: newQuals });
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    q.month || "\u00A0"
+                                                )}
+                                            </td>
+                                            <td className="cell" style={fillerStyle}>
+                                                {editable ? (
+                                                    <input
+                                                        type="text"
+                                                        className="cell-input"
+                                                        value={q.qualification || ""}
+                                                        onChange={(ev) => {
+                                                            const newQuals = [...(data.qualifications || [])];
+                                                            newQuals[i] = { ...newQuals[i], qualification: ev.target.value };
+                                                            onChange?.({ qualifications: newQuals });
+                                                        }}
+                                                        placeholder="資格名を入力"
+                                                    />
+                                                ) : (
+                                                    q.qualification || "\u00A0"
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                });
+                            })()}
                         </tbody>
                     </table>
 
