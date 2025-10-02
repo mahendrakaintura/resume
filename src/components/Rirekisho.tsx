@@ -643,17 +643,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 type="button"
                                 className="btn btn-primary text-[9pt] px-[4mm] py-[1mm]"
                                 onClick={() => {
-                                    const edu = data.education || [];
-                                    const work = data.work || [];
-                                    const totalEntries = edu.length + work.length;
-
-                                    const TOTAL_CAP = 22; // 12 base rows + 10 extra rows allowed
-                                    if (totalEntries >= TOTAL_CAP) {
-                                        alert("これ以上追加できません（上限 22 行）。");
-                                        return;
-                                    }
-
                                     // Add new education entry to EDUCATION array so it shows properly
+                                    const edu = data.education || [];
                                     const newEducation = { from: "", to: "", school: "", note: "" };
                                     const updatedEducation = [...edu, newEducation];
                                     onChange?.({ education: updatedEducation });
@@ -676,17 +667,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 type="button"
                                 className="btn btn-primary text-[9pt] px-[4mm] py-[1mm]"
                                 onClick={() => {
-                                    const edu = data.education || [];
-                                    const work = data.work || [];
-                                    const totalEntries = edu.length + work.length;
-
-                                    const TOTAL_CAP = 22; // 12 base rows + 10 extra rows allowed
-                                    if (totalEntries >= TOTAL_CAP) {
-                                        alert("これ以上追加できません（上限 22 行）。");
-                                        return;
-                                    }
-
                                     // Add new work entry at the end so it appears last in table
+                                    const work = data.work || [];
                                     const newWork = { from: "", to: "", company: "", role: "", note: "" };
                                     const updatedWork = [...work, newWork];
                                     onChange?.({ work: updatedWork });
