@@ -2,6 +2,7 @@
 "use client";
 import { useState, useCallback, useEffect } from "react";
 import Rirekisho, { type RirekishoData } from "@/components/Rirekisho";
+import ResumeLoader from "@/components/ResumeLoader";
 
 const defaultValues: RirekishoData = {
   name: "",
@@ -26,17 +27,24 @@ const defaultValues: RirekishoData = {
 export default function Home() {
   const [saving, setSaving] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
+  const [showId, setShowId] = useState(false);
   const [data, setData] = useState<RirekishoData>(defaultValues);
 
   // Load draft from localStorage once on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem("rirekisho:draft");
+      const savedId = localStorage.getItem("rirekisho:savedId");
+
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === "object") {
           setData((prev) => ({ ...prev, ...parsed }));
         }
+      }
+
+      if (savedId) {
+        setResumeId(savedId);
       }
     } catch { /* ignore */ }
   }, []);
@@ -55,11 +63,27 @@ export default function Home() {
     setData((prev) => ({ ...prev, ...patch }));
   }, []);
 
+  // Copy Resume ID to clipboard
+  const copyResumeId = () => {
+    if (resumeId) {
+      navigator.clipboard.writeText(resumeId);
+      alert("Resume ID copied to clipboard!");
+    }
+  };
+
+  // Handle loading resume from ResumeLoader component
+  const handleResumeLoad = (loadedData: any, loadedResumeId: string) => {
+    setData(loadedData);
+    setResumeId(loadedResumeId);
+    localStorage.setItem("rirekisho:savedId", loadedResumeId);
+  };
+
   const onClear = () => {
     if (!confirm("全ての入力をクリアしますか？ (This will clear unsaved local draft)")) return;
     try {
       localStorage.removeItem("rirekisho:draft");
       localStorage.removeItem("rirekisho:unsaved"); // Also clear unsaved export data
+      localStorage.removeItem("rirekisho:savedId"); // Clear saved ID
     } catch { /* ignore */ }
     // Create fresh copy of defaultValues to ensure no reference issues
     const freshData: RirekishoData = {
@@ -85,8 +109,11 @@ export default function Home() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(JSON.stringify(json));
+
       setResumeId(json.id);
-      alert("Saved");
+      localStorage.setItem("rirekisho:savedId", json.id);
+
+      alert(`Saved! Your Resume ID: ${json.id}`);
     } catch (e: any) {
       alert("Save failed: " + e.message);
     } finally {
@@ -123,20 +150,58 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-slate-50">
-      <div className="flex items-center gap-2 mb-4 sticky top-0 bg-slate-50 z-10 py-2">
-        <button onClick={onSave} disabled={saving} className="btn-primary">{saving ? "Saving..." : "Save"}</button>
-        <button onClick={onClear} className="btn text-red-600 border-red-300">Clear</button>
-        <button onClick={onExport} className="btn">Export PDF (A4 x2)</button>
-        <button onClick={onQuickExport} className="btn">Quick Export (no save)</button>
-        {resumeId && <span className="text-sm text-gray-600">ID: {resumeId}</span>}
+    <div className="min-h-screen bg-slate-50">
+      {/* Fixed Header - ABSOLUTELY FIXED */}
+      <div className="fixed top-0 left-0 right-0 bg-slate-50 z-30 px-6 py-4 border-b border-slate-200 shadow-sm backdrop-blur-sm">
+        <div className="flex flex-col gap-3">
+          {/* First row - Save/Clear buttons and Resume ID */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={onSave} disabled={saving} className="btn-primary">
+              {saving ? "Saving..." : "Save"}
+            </button>
+            <button onClick={onClear} className="btn text-red-600 border-red-300">
+              Clear
+            </button>
+
+            {/* Resume ID display */}
+            {resumeId && (
+              <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded border">
+                <span className="text-sm text-green-700">
+                  Your ID: {showId ? resumeId : "••••••••"}
+                </span>
+                <button
+                  onClick={() => setShowId(!showId)}
+                  className="text-xs text-green-600 hover:underline"
+                >
+                  {showId ? "Hide" : "Show"}
+                </button>
+                <button
+                  onClick={copyResumeId}
+                  className="text-xs bg-green-600 text-white px-2 py-1 rounded"
+                >
+                  Copy
+                </button>
+              </div>
+            )}
+
+            <button onClick={onExport} className="btn">Export PDF (A4 x2)</button>
+            <button onClick={onQuickExport} className="btn">Quick Export (no save)</button>
+          </div>
+
+          {/* Second row - Resume Loader - COMPLETELY FIXED */}
+          <ResumeLoader onLoad={handleResumeLoad} />
+        </div>
       </div>
-      <div className="print-surface overflow-auto">
-        <Rirekisho
-          data={data}
-          editable
-          onChange={handleChange}
-        />
+
+      {/* Scrollable Content with top margin to avoid overlap */}
+      <div className="pt-40 px-6">
+        <div className="print-surface overflow-auto">
+          <Rirekisho
+            data={data}
+            editable
+            onChange={handleChange}
+          />
+        </div>
       </div>
     </div>
   );
