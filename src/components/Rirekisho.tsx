@@ -176,10 +176,11 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* Top block with photo */}
-                <div className="mt-[4mm] relative">
+                <div className="mt-[4mm] relative" style={{ position: 'relative' }}>
                     {/* Right: Photo */}
                     <div
                         className="photo-slot absolute right-[2mm] top-[-16mm]"
+                        style={{ zIndex: 5 }}
                         onClick={onPickPhoto}
                         role={editable ? "button" : undefined}
                         title={editable ? "写真をクリックしてアップロード" : undefined}
@@ -216,7 +217,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <col style={{ width: "20mm" }} />
                                 <col style={{ width: "calc(100% - 60mm)" }} />
                                 <col style={{ width: "12mm" }} />
-                                <col style={{ width: "23mm" }} />
+                                <col style={{ width: "28mm" }} />
                             </colgroup>
                             <tbody>
                                 {/* Row: Furigana + Gender */}
@@ -262,13 +263,14 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 <div className="mt-[0mm]">
                     <table className="w-full table-fixed border-collapse">
                         <colgroup>
-                            <col style={{ width: "20mm" }} />
+                            <col style={{ width: "15mm" }} />
                             <col style={{ width: "16mm" }} />
                             <col style={{ width: "8mm" }} />
                             <col style={{ width: "16mm" }} />
                             <col style={{ width: "8mm" }} />
-                            <col style={{ width: "calc(100% - 80mm)" }} />
+                            <col style={{ width: "calc(100% - 120mm)" }} />
                             <col style={{ width: "12mm" }} />
+                            <col style={{ width: "55mm" }} />
                         </colgroup>
                         <tbody>
                             {/* Row: DOB + Nationality */}
@@ -403,13 +405,14 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         </tbody>
                     </table>
                 </div>                {/* Education/Work section (page 1 top portion) */}
-                <div className="mt-[6mm]">
+                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <thead>
                             <tr>
                                 <th className="cell text-center w-[14mm]">年</th>
                                 <th className="cell text-center w-[14mm]">月</th>
                                 <th className="cell text-center">学　歴 ・ 職　歴（項目別にまとめて記入）</th>
+                                {editable && <th className="cell text-center w-[20mm]">操作</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -448,6 +451,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                     });
                                 });
 
+                                // In edit mode, show all entries (including newly added blank ones)
                                 // In export mode, filter out empty entries to avoid blank rows
                                 const filtered = editable ? allEntries : allEntries.filter(entry => {
                                     const data = entry.data;
@@ -524,6 +528,21 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         e.school !== undefined ? e.school : "\u00A0"
                                                     )}
                                                 </td>
+                                                {editable && (
+                                                    <td className="cell text-center">
+                                                        <button
+                                                            type="button"
+                                                            className="text-red-600 hover:text-red-800 text-[12pt]"
+                                                            onClick={() => {
+                                                                const updated = (data.education || []).filter((_, i) => i !== entry.index);
+                                                                onChange?.({ education: updated });
+                                                            }}
+                                                            title="削除"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </td>
+                                                )}
                                             </tr>
                                         );
                                     } else if (entry.type === 'work') {
@@ -593,6 +612,21 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         w.company !== undefined ? `${w.company}${w.role ? ` ／ ${w.role}` : ""}` : "\u00A0"
                                                     )}
                                                 </td>
+                                                {editable && (
+                                                    <td className="cell text-center">
+                                                        <button
+                                                            type="button"
+                                                            className="text-red-600 hover:text-red-800 text-[12pt]"
+                                                            onClick={() => {
+                                                                const updated = (data.work || []).filter((_, i) => i !== entry.index);
+                                                                onChange?.({ work: updated });
+                                                            }}
+                                                            title="削除"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </td>
+                                                )}
                                             </tr>
                                         );
                                     }
@@ -680,18 +714,21 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
             {/* Page 2 - 履歴書 (続き) */}
             <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho">
                 {/* 免許・資格 Section */}
-                <div className="mt-[6mm]">
+                <div className={`${isExport ? 'mt-[2mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <thead>
                             <tr>
                                 <th className="cell text-center w-[14mm]">年</th>
                                 <th className="cell text-center w-[14mm]">月</th>
                                 <th className="cell text-center">免許・資格</th>
+                                {editable && <th className="cell text-center w-[20mm]">操作</th>}
                             </tr>
                         </thead>
                         <tbody>
                             {(() => {
                                 const provided = (data.qualifications || []);
+                                // In edit mode, show all entries (including newly added blank ones)
+                                // In export mode, filter blank entries
                                 const filtered = editable ? provided : provided.filter(q => q.year || q.month || q.qualification);
                                 const actualCount = filtered.length;
                                 const MIN_QUAL_ROWS_EXPORT = 10;
@@ -767,6 +804,23 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                     q.qualification || "\u00A0"
                                                 )}
                                             </td>
+                                            {editable && (
+                                                <td className="cell text-center" style={fillerStyle}>
+                                                    {!isFiller && (
+                                                        <button
+                                                            type="button"
+                                                            className="text-red-600 hover:text-red-800 text-[12pt]"
+                                                            onClick={() => {
+                                                                const updated = (data.qualifications || []).filter((_, idx) => idx !== i);
+                                                                onChange?.({ qualifications: updated });
+                                                            }}
+                                                            title="削除"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            )}
                                         </tr>
                                     );
                                 });
@@ -806,7 +860,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 対応言語 Section (single row as per design) */}
-                <div className="mt-[8mm]">
+                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[8mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <tbody>
                             <tr>
@@ -841,7 +895,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 得意な科目・分野 / アルバイト経験 */}
-                <div className="mt-[6mm]">
+                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <colgroup>
                             <col style={{ width: "50%" }} />
@@ -855,7 +909,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         </thead>
                         <tbody>
                             <tr>
-                                <td className="cell align-top p-[2mm]" style={isExport ? { minHeight: "28mm", borderRightStyle: "dotted" } : { height: "28mm", borderRightStyle: "dotted" }}>
+                                <td className="cell align-top p-[2mm]" style={isExport ? { minHeight: "22mm", borderRightStyle: "dotted" } : { height: "28mm", borderRightStyle: "dotted" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -866,7 +920,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         <div className="text-[9pt] whitespace-pre-wrap">{data.specialty}</div>
                                     )}
                                 </td>
-                                <td className="cell align-top p-[2mm]" style={isExport ? { minHeight: "28mm" } : { height: "28mm" }}>
+                                <td className="cell align-top p-[2mm]" style={isExport ? { minHeight: "22mm" } : { height: "28mm" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -883,14 +937,14 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 自己PR */}
-                <div className="mt-[6mm]">
+                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <tbody>
                             <tr>
                                 <th className="cell label w-[30mm] text-left" style={{ borderBottomStyle: "dotted", textAlign: "left" }}>自己ＰＲ</th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "45mm", borderTop: "0" } : { height: "45mm", borderTop: "0" }}>
+                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "38mm", borderTop: "0" } : { height: "45mm", borderTop: "0" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -907,14 +961,14 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 志望動機 */}
-                <div className="mt-[6mm]">
+                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <tbody>
                             <tr>
                                 <th className="cell label w-[30mm] text-left" style={{ borderBottomStyle: "dotted", textAlign: "left" }}>志望動機</th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "50mm", borderTop: "0" } : { height: "50mm", borderTop: "0" }}>
+                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "42mm", borderTop: "0" } : { height: "50mm", borderTop: "0" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -931,7 +985,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 通勤時間 / 扶養家族数 / 配偶者の有無 / 配偶者の扶養義務 */}
-                <div className="mt-[8mm] avoid-break">
+                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[8mm]'} avoid-break`}>
                     <table className="w-full border-collapse table-fixed">
                         <colgroup>
                             <col style={{ width: "25%" }} />
@@ -1054,7 +1108,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 本人希望記入欄 */}
-                <div className="mt-[6mm] avoid-break">
+                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[6mm]'} avoid-break`}>
                     <table className="w-full border-collapse table-fixed">
                         <tbody>
                             <tr>
@@ -1063,7 +1117,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 </th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "30mm" } : { height: "30mm" }}>
+                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "25mm" } : { height: "30mm" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"

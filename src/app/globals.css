@@ -23,7 +23,11 @@ body {
 .a4 {
   width: 210mm;
   min-height: 297mm;
+  max-height: 297mm;
+  /* Enforce maximum height */
   box-sizing: border-box;
+  overflow: hidden;
+  /* Prevent content overflow creating extra pages */
 }
 
 .page-break {
@@ -89,6 +93,8 @@ body {
   overflow: visible;
   font-size: 10pt;
   box-sizing: border-box;
+  line-height: 1.25;
+  /* Tighter line height */
 }
 
 /* Allow wrapped multi-line content (used in display mode so long sentences stay inside the cell) */
@@ -256,6 +262,37 @@ body {
   .cell-input {
     border: 0.2mm dotted #555 !important;
     background: transparent !important;
+  }
+
+  /* Enforce 2-page limit */
+  .a4 {
+    max-height: 277mm !important;
+    overflow: hidden !important;
+  }
+
+  /* Compact spacing for education/work history */
+  .rirekisho .cell {
+    padding: 1mm 1.2mm !important;
+    font-size: 9pt !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Reduce section spacing */
+  .rirekisho table {
+    margin-top: 2mm !important;
+    margin-bottom: 2mm !important;
+  }
+
+  /* Tighter row heights */
+  .rirekisho tbody tr {
+    height: auto !important;
+    min-height: 6mm !important;
+  }
+
+  /* Prevent orphan rows */
+  .rirekisho tbody tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
 

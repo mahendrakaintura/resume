@@ -32,14 +32,15 @@ export async function POST(req: Request) {
             const page = await browser.newPage();
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
             // Seed data into localStorage, then go to print/unsaved which reads it and renders Rirekisho
-            await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+            await page.goto(baseUrl, { waitUntil: "networkidle0" });
             await page.evaluate((payload) => {
                 localStorage.setItem("rirekisho:unsaved", JSON.stringify(payload));
             }, data);
-            await page.goto(`${baseUrl}/print/unsaved`, { waitUntil: "domcontentloaded" });
+            await page.goto(`${baseUrl}/print/unsaved`, { waitUntil: "networkidle0" });
             // Wait for the React client component to hydrate and load data from localStorage.
             // The PrintUnsavedClient shows a div with class 'print-surface' once data is loaded.
             await page.waitForSelector('.print-surface', { timeout: 5000 }).catch(() => { });
+
             // Extra guard: ensure name (or some field) exists; if not, force inject directly.
             const hasData = await page.evaluate(() => {
                 const root = document.querySelector('.print-surface');
@@ -57,6 +58,11 @@ export async function POST(req: Request) {
                 // Small delay to allow React to re-render after storage event
                 await new Promise((res) => setTimeout(res, 300));
             }
+
+            // Wait for all styles and images to fully load
+            await page.waitForSelector('.photo-slot', { timeout: 3000 }).catch(() => { });
+            await new Promise((res) => setTimeout(res, 500)); // Additional delay for CSS to apply
+
             const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
             await page.close();
             const buildDisposition = (name: string) => {

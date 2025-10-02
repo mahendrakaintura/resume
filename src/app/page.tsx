@@ -16,34 +16,11 @@ const defaultValues: RirekishoData = {
   addressFurigana: "",
   phone: "",
   email: "",
-  education: [
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-    { from: "", to: "", school: "", note: "" },
-  ],
+  education: [], // Start with empty - user will add as needed
   work: [],
   skills: [],
   notes: "",
-  qualifications: [
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-    { year: "", month: "", qualification: "" },
-  ],
+  qualifications: [], // Start with empty - user will add as needed
 };
 
 export default function Home() {
@@ -80,8 +57,20 @@ export default function Home() {
 
   const onClear = () => {
     if (!confirm("全ての入力をクリアしますか？ (This will clear unsaved local draft)")) return;
-    try { localStorage.removeItem("rirekisho:draft"); } catch { /* ignore */ }
-    setData(defaultValues);
+    try {
+      localStorage.removeItem("rirekisho:draft");
+      localStorage.removeItem("rirekisho:unsaved"); // Also clear unsaved export data
+    } catch { /* ignore */ }
+    // Create fresh copy of defaultValues to ensure no reference issues
+    const freshData: RirekishoData = {
+      ...defaultValues,
+      education: (defaultValues.education || []).map(e => ({ ...e })),
+      work: (defaultValues.work || []).map(w => ({ ...w })),
+      qualifications: (defaultValues.qualifications || []).map(q => ({ ...q })),
+      languages: [],
+      skills: []
+    };
+    setData(freshData);
     setResumeId(null);
   };
 
@@ -135,14 +124,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-6 bg-slate-50">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-4 sticky top-0 bg-slate-50 z-10 py-2">
         <button onClick={onSave} disabled={saving} className="btn-primary">{saving ? "Saving..." : "Save"}</button>
         <button onClick={onClear} className="btn text-red-600 border-red-300">Clear</button>
         <button onClick={onExport} className="btn">Export PDF (A4 x2)</button>
         <button onClick={onQuickExport} className="btn">Quick Export (no save)</button>
         {resumeId && <span className="text-sm text-gray-600">ID: {resumeId}</span>}
       </div>
-      <div className="print-surface">
+      <div className="print-surface overflow-auto">
         <Rirekisho
           data={data}
           editable
