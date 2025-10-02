@@ -269,8 +269,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             <col style={{ width: "7mm" }} />
                             <col style={{ width: "15mm" }} />
                             <col style={{ width: "7mm" }} />
-                            <col style={{ width: "calc(100% - 111mm)" }} />
-                            <col style={{ width: "12mm" }} />
+                            <col style={{ width: "calc(100% - 109mm)" }} />
+                            <col style={{ width: "10mm" }} />
                             <col style={{ width: "40mm" }} />
                         </colgroup>
                         <tbody>
@@ -296,27 +296,43 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                     />
                                 </td>
                                 <td className="cell text-center text-[9pt]">月</td>
-                                <td className="cell">
-                                    <div className="flex items-center gap-[0.5mm] whitespace-nowrap">
-                                        <span className="inline-block w-[11mm] text-center">
-                                            <EditableCell
-                                                field="birthDay"
-                                                value={data.birthDay || ""}
-                                                editable={editable}
-                                                onChange={onChange}
-                                            />
-                                        </span>
-                                        <span className="text-[8.5pt]">日生（満</span>
-                                        <span className="inline-block w-[9mm] text-center">
-                                            <EditableCell
-                                                field="age"
-                                                value={data.age || ""}
-                                                editable={editable}
-                                                onChange={onChange}
-                                            />
-                                        </span>
-                                        <span className="text-[8.5pt]">歳）</span>
-                                    </div>
+                                <td className="cell" style={{ overflow: 'hidden' }}>
+                                    {editable ? (
+                                        <div className="flex items-center gap-[0.3mm] whitespace-nowrap leading-none no-break-ja text-[9pt]">
+                                            <span className="inline-block w-[10mm] text-center">
+                                                <EditableCell
+                                                    field="birthDay"
+                                                    value={data.birthDay || ""}
+                                                    editable={editable}
+                                                    onChange={onChange}
+                                                    className="inline-cell"
+                                                    placeholder=""
+                                                />
+                                            </span>
+                                            <span className="text-[8pt] leading-none">日生（満</span>
+                                            <span className="inline-block w-[8mm] text-center">
+                                                <EditableCell
+                                                    field="age"
+                                                    value={data.age || ""}
+                                                    editable={editable}
+                                                    onChange={onChange}
+                                                    className="inline-cell"
+                                                    placeholder=""
+                                                />
+                                            </span>
+                                            <span className="text-[8pt] leading-none">歳）</span>
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className="no-break-ja text-[9pt]"
+                                            style={{ paddingRight: '0.5mm', display: 'inline-flex', alignItems: 'baseline', gap: '0.3mm', maxWidth: '100%', overflow: 'hidden' }}
+                                        >
+                                            <span>{data.birthDay || "\u00A0"}</span>
+                                            <span>日生（満</span>
+                                            <span>{data.age || "\u00A0"}</span>
+                                            <span>歳）</span>
+                                        </div>
+                                    )}
                                 </td>
                                 <th className="cell label">国籍</th>
                                 <td className="cell">
@@ -643,15 +659,15 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 type="button"
                                 className="btn btn-primary text-[9pt] px-[4mm] py-[1mm]"
                                 onClick={() => {
-                                    // Add new education entry to EDUCATION array so it shows properly
-                                    const edu = data.education || [];
-                                    const newEducation = { from: "", to: "", school: "", note: "" };
-                                    const updatedEducation = [...edu, newEducation];
-                                    onChange?.({ education: updatedEducation });
+                                    // Add new education entry to WORK array so it appears in the last row
+                                    const work = data.work || [];
+                                    const newWork = { from: "", to: "", company: "", role: "", note: "" };
+                                    const updatedWork = [...work, newWork];
+                                    onChange?.({ work: updatedWork });
 
                                     setTimeout(() => {
                                         requestAnimationFrame(() => {
-                                            const id = `edu-year-${edu.length}`;
+                                            const id = `work-year-${work.length}`;
                                             const el = document.getElementById(id) as HTMLInputElement | null;
                                             if (el) {
                                                 el.focus();
@@ -690,19 +706,17 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         </div>
                     )}
                 </div>
-
-                <div className="page-break" />
             </section>
 
             {/* Page 2 - 履歴書 (続き) */}
-            <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho">
+            <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho second-page flex flex-col">
                 {/* 免許・資格 Section */}
                 <div className={`${isExport ? 'mt-[2mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <thead>
                             <tr>
                                 <th className="cell text-center w-[14mm]">年</th>
-                                <th className="cell text-center w-[14mm]">月</th>
+                                <th className="cell text-center w-[10mm]">月</th>
                                 <th className="cell text-center">免許・資格</th>
                                 {editable && <th className="cell text-center w-[20mm]">操作</th>}
                             </tr>
@@ -710,103 +724,86 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         <tbody>
                             {(() => {
                                 const provided = (data.qualifications || []);
-                                // In edit mode, show all entries (including newly added blank ones)
-                                // In export mode, filter blank entries
-                                const filtered = editable ? provided : provided.filter(q => q.year || q.month || q.qualification);
-                                const actualCount = filtered.length;
-                                const MIN_QUAL_ROWS_EXPORT = 10;
-                                const rows = !editable
-                                    ? (() => {
-                                        const arr = [...filtered];
-                                        while (arr.length < MIN_QUAL_ROWS_EXPORT) {
-                                            arr.push({ year: "", month: "", qualification: "" } as any);
-                                        }
-                                        return arr;
-                                    })()
-                                    : filtered;
-                                return rows.map((q, i) => {
-                                    const isFiller = !editable && i >= actualCount;
-                                    const fillerStyle = isFiller ? { height: "10mm" } : undefined;
-                                    return (
-                                        <tr key={`qual-${i}`}>
-                                            <td className="cell">
-                                                {editable ? (
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        className="cell-input text-center"
-                                                        id={`qual-year-${i}`}
-                                                        value={q.year || ""}
-                                                        onChange={(ev) => {
-                                                            const year = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
-                                                            const newQuals = [...(data.qualifications || [])];
-                                                            newQuals[i] = { ...newQuals[i], year };
-                                                            onChange?.({ qualifications: newQuals });
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    q.year || "\u00A0"
-                                                )}
-                                            </td>
-                                            <td className="cell" style={fillerStyle}>
-                                                {editable ? (
-                                                    <input
-                                                        type="text"
-                                                        inputMode="numeric"
-                                                        className="cell-input text-center"
-                                                        id={`qual-month-${i}`}
-                                                        value={q.month || ""}
-                                                        onChange={(ev) => {
-                                                            const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
-                                                            const mm = raw ? raw.padStart(2, "0") : "";
-                                                            const mmNum = mm ? Math.min(Math.max(parseInt(mm, 10), 1), 12) : 0;
-                                                            const month = mmNum ? String(mmNum).padStart(2, "0") : raw;
-                                                            const newQuals = [...(data.qualifications || [])];
-                                                            newQuals[i] = { ...newQuals[i], month };
-                                                            onChange?.({ qualifications: newQuals });
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    q.month || "\u00A0"
-                                                )}
-                                            </td>
-                                            <td className="cell" style={fillerStyle}>
-                                                {editable ? (
-                                                    <input
-                                                        type="text"
-                                                        className="cell-input"
-                                                        value={q.qualification || ""}
-                                                        onChange={(ev) => {
-                                                            const newQuals = [...(data.qualifications || [])];
-                                                            newQuals[i] = { ...newQuals[i], qualification: ev.target.value };
-                                                            onChange?.({ qualifications: newQuals });
-                                                        }}
-                                                        placeholder="資格名を入力"
-                                                    />
-                                                ) : (
-                                                    q.qualification || "\u00A0"
-                                                )}
-                                            </td>
-                                            {editable && (
-                                                <td className="cell text-center" style={fillerStyle}>
-                                                    {!isFiller && (
-                                                        <button
-                                                            type="button"
-                                                            className="text-red-600 hover:text-red-800 text-[12pt]"
-                                                            onClick={() => {
-                                                                const updated = (data.qualifications || []).filter((_, idx) => idx !== i);
-                                                                onChange?.({ qualifications: updated });
-                                                            }}
-                                                            title="削除"
-                                                        >
-                                                            ×
-                                                        </button>
-                                                    )}
-                                                </td>
+                                const rows = editable
+                                    ? provided
+                                    : provided.filter(q => q.year || q.month || q.qualification);
+                                return rows.map((q, i) => (
+                                    <tr key={`qual-${i}`}>
+                                        <td className="cell text-center">
+                                            {editable ? (
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    className="cell-input text-center"
+                                                    id={`qual-year-${i}`}
+                                                    value={q.year || ""}
+                                                    onChange={(ev) => {
+                                                        const year = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                                                        const newQuals = [...(data.qualifications || [])];
+                                                        newQuals[i] = { ...newQuals[i], year };
+                                                        onChange?.({ qualifications: newQuals });
+                                                    }}
+                                                />
+                                            ) : (
+                                                q.year || "\u00A0"
                                             )}
-                                        </tr>
-                                    );
-                                });
+                                        </td>
+                                        <td className="cell text-center">
+                                            {editable ? (
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    className="cell-input text-center"
+                                                    id={`qual-month-${i}`}
+                                                    value={q.month || ""}
+                                                    onChange={(ev) => {
+                                                        const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+                                                        const mm = raw ? raw.padStart(2, "0") : "";
+                                                        const mmNum = mm ? Math.min(Math.max(parseInt(mm, 10), 1), 12) : 0;
+                                                        const month = mmNum ? String(mmNum).padStart(2, "0") : raw;
+                                                        const newQuals = [...(data.qualifications || [])];
+                                                        newQuals[i] = { ...newQuals[i], month };
+                                                        onChange?.({ qualifications: newQuals });
+                                                    }}
+                                                />
+                                            ) : (
+                                                q.month || "\u00A0"
+                                            )}
+                                        </td>
+                                        <td className="cell">
+                                            {editable ? (
+                                                <input
+                                                    type="text"
+                                                    className="cell-input"
+                                                    value={q.qualification || ""}
+                                                    onChange={(ev) => {
+                                                        const newQuals = [...(data.qualifications || [])];
+                                                        newQuals[i] = { ...newQuals[i], qualification: ev.target.value };
+                                                        onChange?.({ qualifications: newQuals });
+                                                    }}
+                                                    placeholder="資格名を入力"
+                                                />
+                                            ) : (
+                                                q.qualification || "\u00A0"
+                                            )}
+                                        </td>
+                                        {editable && (
+                                            <td className="cell text-center">
+                                                <button
+                                                    type="button"
+                                                    className="text-red-600 hover:text-red-800 text-[12pt]"
+                                                    onClick={() => {
+                                                        const updated = (data.qualifications || []).filter((_, idx) => idx !== i);
+                                                        onChange?.({ qualifications: updated });
+                                                    }}
+                                                    title="削除"
+                                                >
+                                                    ×
+                                                </button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ));
                             })()}
                         </tbody>
                     </table>
@@ -927,7 +924,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <th className="cell label w-[30mm] text-left" style={{ borderBottomStyle: "dotted", textAlign: "left" }}>自己ＰＲ</th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "38mm", borderTop: "0" } : { height: "45mm", borderTop: "0" }}>
+                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "40mm", height: "40mm", borderTop: "0", verticalAlign: "top" } : { height: "52mm", borderTop: "0", verticalAlign: "top" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -951,7 +948,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <th className="cell label w-[30mm] text-left" style={{ borderBottomStyle: "dotted", textAlign: "left" }}>志望動機</th>
                             </tr>
                             <tr>
-                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "42mm", borderTop: "0" } : { height: "50mm", borderTop: "0" }}>
+                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "40mm", height: "40mm", borderTop: "0", verticalAlign: "top" } : { height: "58mm", borderTop: "0", verticalAlign: "top" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -1091,16 +1088,16 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 本人希望記入欄 */}
-                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[6mm]'} avoid-break`}>
-                    <table className="w-full border-collapse table-fixed">
+                <div className={`${isExport ? 'mt-[2mm]' : 'mt-[6mm]'} avoid-break flex-1 flex flex-col`}>
+                    <table className="w-full border-collapse table-fixed h-full personal-requests-table">
                         <tbody>
                             <tr>
                                 <th className="cell label">
                                     本人希望記入欄（特に給与・職種・勤務時間・勤務地・その他についての希望などがあれば記入）
                                 </th>
                             </tr>
-                            <tr>
-                                <td className="cell p-[2mm]" style={isExport ? { minHeight: "25mm" } : { height: "30mm" }}>
+                            <tr className="h-full">
+                                <td className="cell p-[2mm] h-full personal-requests-td" style={isExport ? { minHeight: "12mm", height: "100%" } : { minHeight: "24mm", height: "100%" }}>
                                     {editable ? (
                                         <textarea
                                             className="w-full h-full resize-none border-none outline-none text-[9pt]"
@@ -1108,7 +1105,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                             onChange={(e) => onChange?.({ personalRequests: e.target.value })}
                                         />
                                     ) : (
-                                        <div className="text-[9pt] whitespace-pre-wrap">{data.personalRequests}</div>
+                                        <div className="text-[9pt] whitespace-pre-wrap h-full">{data.personalRequests}</div>
                                     )}
                                 </td>
                             </tr>
