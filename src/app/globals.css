@@ -23,11 +23,15 @@ body {
 .a4 {
   width: 210mm;
   min-height: 297mm;
-  max-height: 297mm;
-  /* Enforce maximum height */
   box-sizing: border-box;
-  overflow: hidden;
-  /* Prevent content overflow creating extra pages */
+}
+
+/* Only apply height/overflow constraints in print mode */
+@media print {
+  .a4 {
+    max-height: 297mm;
+    overflow: hidden;
+  }
 }
 
 .page-break {
