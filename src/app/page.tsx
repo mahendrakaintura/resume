@@ -151,8 +151,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Fixed Header - ABSOLUTELY FIXED */}
-      <div className="fixed top-0 left-0 right-0 bg-slate-50 z-30 px-6 py-4 border-b border-slate-200 shadow-sm backdrop-blur-sm">
+      {/* Fixed Header - Hides on scroll */}
+      <div className="sticky top-0 left-0 right-0 bg-slate-50 z-40 px-6 py-4 border-b border-slate-200 shadow-sm backdrop-blur-sm">
         <div className="flex flex-col gap-3">
           {/* First row - Save/Clear buttons and Resume ID */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -188,14 +188,14 @@ export default function Home() {
             <button onClick={onQuickExport} className="btn">Quick Export (no save)</button>
           </div>
 
-          {/* Second row - Resume Loader - COMPLETELY FIXED */}
+          {/* Second row - Resume Loader */}
           <ResumeLoader onLoad={handleResumeLoad} />
         </div>
       </div>
 
-      {/* Scrollable Content with top margin to avoid overlap */}
-      <div className="pt-40 px-6">
-        <div className="print-surface overflow-auto">
+      {/* Scrollable Content */}
+      <div className="px-6">
+        <div className="print-surface">
           <Rirekisho
             data={data}
             editable
