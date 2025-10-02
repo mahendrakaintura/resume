@@ -132,8 +132,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
     return (
         <div className={`text-black ${editable ? 'responsive-edit' : 'print-layout'}`}>
             {/* Page 1 */}
-            <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho"
-                style={isExport ? { position: 'relative', overflow: 'hidden' } : undefined}>
+            <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho first-page"
+                style={isExport ? { position: 'relative' } : undefined}>
                 {/* Title and date */}
                 <div className="flex items-start justify-between pr-[30mm]">
                     <div className="r-title">履 歴 書</div>
@@ -180,7 +180,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 <div className={`${isExport ? 'mt-[3mm]' : 'mt-[4mm]'} relative`} style={{ position: 'relative' }}>
                     {/* Right: Photo - positioned absolutely to page for export */}
                     <div
-                        className={`photo-slot ${isExport ? 'fixed top-[4mm] right-[6mm]' : 'absolute right-[2mm] top-[-16mm]'}`}
+                        className={`photo-slot ${isExport ? 'fixed top-[6mm] right-[6mm]' : 'absolute right-[2mm] top-[-16mm]'}`}
                         style={{ zIndex: 5 }}
                         onClick={onPickPhoto}
                         role={editable ? "button" : undefined}
@@ -265,13 +265,13 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                     <table className="w-full table-fixed border-collapse">
                         <colgroup>
                             <col style={{ width: "15mm" }} />
-                            <col style={{ width: "16mm" }} />
-                            <col style={{ width: "8mm" }} />
-                            <col style={{ width: "16mm" }} />
-                            <col style={{ width: "8mm" }} />
-                            <col style={{ width: "calc(100% - 120mm)" }} />
+                            <col style={{ width: "15mm" }} />
+                            <col style={{ width: "7mm" }} />
+                            <col style={{ width: "15mm" }} />
+                            <col style={{ width: "7mm" }} />
+                            <col style={{ width: "calc(100% - 111mm)" }} />
                             <col style={{ width: "12mm" }} />
-                            <col style={{ width: "55mm" }} />
+                            <col style={{ width: "40mm" }} />
                         </colgroup>
                         <tbody>
                             {/* Row: DOB + Nationality */}
@@ -297,8 +297,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 </td>
                                 <td className="cell text-center text-[9pt]">月</td>
                                 <td className="cell">
-                                    <div className="flex items-center gap-[1mm]">
-                                        <span className="inline-block w-[12mm] text-center">
+                                    <div className="flex items-center gap-[0.5mm] whitespace-nowrap">
+                                        <span className="inline-block w-[11mm] text-center">
                                             <EditableCell
                                                 field="birthDay"
                                                 value={data.birthDay || ""}
@@ -306,8 +306,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 onChange={onChange}
                                             />
                                         </span>
-                                        <span className="text-[9pt]">日生（満</span>
-                                        <span className="inline-block w-[10mm] text-center">
+                                        <span className="text-[8.5pt]">日生（満</span>
+                                        <span className="inline-block w-[9mm] text-center">
                                             <EditableCell
                                                 field="age"
                                                 value={data.age || ""}
@@ -315,7 +315,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 onChange={onChange}
                                             />
                                         </span>
-                                        <span className="text-[9pt]">歳）</span>
+                                        <span className="text-[8.5pt]">歳）</span>
                                     </div>
                                 </td>
                                 <th className="cell label">国籍</th>
@@ -691,7 +691,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                     )}
                 </div>
 
-                {!isExport && <div className="page-break" />}
+                <div className="page-break" />
             </section>
 
             {/* Page 2 - 履歴書 (続き) */}

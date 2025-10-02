@@ -30,9 +30,8 @@ body {
 @media print {
   .a4 {
     width: 210mm !important;
-    height: 297mm !important;
-    max-height: 297mm !important;
-    overflow: hidden !important;
+    min-height: 297mm !important;
+    overflow: visible !important;
     position: relative;
   }
 }
@@ -299,7 +298,7 @@ body {
   /* Fix page sizing and prevent overlap */
   .a4 {
     width: 210mm !important;
-    max-height: 297mm !important;
+    min-height: 297mm !important;
     overflow: visible !important;
     page-break-after: auto;
     position: relative;
@@ -321,14 +320,33 @@ body {
     padding: 0 !important;
   }
 
-  /* Fix absolute positioning for print */
-  .rirekisho .photo-slot {
-    position: fixed !important;
-    right: 8mm !important;
-    top: 4mm !important;
+  /* Photo positioning - absolute within first page only */
+  section.first-page .photo-slot {
+    position: absolute !important;
+    right: 0mm !important;
+    top: -22mm !important;
     z-index: 10 !important;
     width: 30mm !important;
     height: 40mm !important;
+    clip-path: inset(0 0 0 0) !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Completely remove photo from all printing contexts except first page */
+  @media print {
+
+    /* Restrict photo to first 297mm (A4 height) only */
+    section.first-page .photo-slot {
+      max-height: 40mm !important;
+      clip: rect(0, 30mm, 40mm, 0) !important;
+    }
+
+    /* After first section, ensure no photo elements render */
+    section:nth-of-type(2) .photo-slot,
+    section:nth-of-type(n+2) .photo-slot {
+      display: none !important;
+      visibility: hidden !important;
+    }
   }
 
   /* Ensure content doesn't overlap with photo */
@@ -349,7 +367,7 @@ body {
     padding: 1.5mm 2mm !important;
     font-size: 10pt !important;
     line-height: 1.3 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     word-wrap: break-word !important;
   }
 
@@ -417,9 +435,9 @@ body {
     overflow: hidden !important;
   }
 
-  /* Ensure sections don't overflow */
+  /* Allow sections to flow to next page */
   .rirekisho section {
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   /* Larger content font */
