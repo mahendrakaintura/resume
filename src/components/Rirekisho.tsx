@@ -130,9 +130,10 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
     const isExport = !editable; // export/print mode (non-editable)
 
     return (
-        <div className={`text-black ${editable ? 'responsive-edit' : ''}`}>
+        <div className={`text-black ${editable ? 'responsive-edit' : 'print-layout'}`}>
             {/* Page 1 */}
-            <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho">
+            <section className="a4 bg-white px-[8mm] pt-[6mm] pb-[6mm] rirekisho"
+                style={isExport ? { position: 'relative', overflow: 'hidden' } : undefined}>
                 {/* Title and date */}
                 <div className="flex items-start justify-between pr-[30mm]">
                     <div className="r-title">履 歴 書</div>
@@ -176,10 +177,10 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* Top block with photo */}
-                <div className="mt-[4mm] relative" style={{ position: 'relative' }}>
-                    {/* Right: Photo */}
+                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[4mm]'} relative`} style={{ position: 'relative' }}>
+                    {/* Right: Photo - positioned absolutely to page for export */}
                     <div
-                        className="photo-slot absolute right-[2mm] top-[-16mm]"
+                        className={`photo-slot ${isExport ? 'fixed top-[4mm] right-[6mm]' : 'absolute right-[2mm] top-[-16mm]'}`}
                         style={{ zIndex: 5 }}
                         onClick={onPickPhoto}
                         role={editable ? "button" : undefined}
@@ -405,7 +406,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         </tbody>
                     </table>
                 </div>                {/* Education/Work section (page 1 top portion) */}
-                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[6mm]'}`}>
+                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <thead>
                             <tr>
@@ -708,7 +709,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                     )}
                 </div>
 
-                <div className="page-break" />
+                {!isExport && <div className="page-break" />}
             </section>
 
             {/* Page 2 - 履歴書 (続き) */}
@@ -860,7 +861,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 対応言語 Section (single row as per design) */}
-                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[8mm]'}`}>
+                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[8mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <tbody>
                             <tr>
@@ -895,7 +896,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 得意な科目・分野 / アルバイト経験 */}
-                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[6mm]'}`}>
+                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <colgroup>
                             <col style={{ width: "50%" }} />
@@ -937,7 +938,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 自己PR */}
-                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[6mm]'}`}>
+                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <tbody>
                             <tr>
@@ -961,7 +962,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 志望動機 */}
-                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[6mm]'}`}>
+                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[6mm]'}`}>
                     <table className="w-full border-collapse table-fixed">
                         <tbody>
                             <tr>
@@ -985,7 +986,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 </div>
 
                 {/* 通勤時間 / 扶養家族数 / 配偶者の有無 / 配偶者の扶養義務 */}
-                <div className={`${isExport ? 'mt-[4mm]' : 'mt-[8mm]'} avoid-break`}>
+                <div className={`${isExport ? 'mt-[3mm]' : 'mt-[8mm]'} avoid-break`}>
                     <table className="w-full border-collapse table-fixed">
                         <colgroup>
                             <col style={{ width: "25%" }} />

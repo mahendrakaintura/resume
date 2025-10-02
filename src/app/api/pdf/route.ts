@@ -61,9 +61,34 @@ export async function POST(req: Request) {
 
             // Wait for all styles and images to fully load
             await page.waitForSelector('.photo-slot', { timeout: 3000 }).catch(() => { });
-            await new Promise((res) => setTimeout(res, 500)); // Additional delay for CSS to apply
 
-            const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
+            // Additional wait for layout stabilization
+            await new Promise((res) => setTimeout(res, 1000));
+
+            // Force layout recalculation
+            await page.evaluate(() => {
+                // Force a reflow to ensure all styles are applied
+                document.body.offsetHeight;
+                // Scroll to top to ensure proper rendering
+                window.scrollTo(0, 0);
+            });
+
+            const pdf = await page.pdf({
+                format: "A4",
+                printBackground: true,
+                preferCSSPageSize: false,
+                displayHeaderFooter: false,
+                margin: {
+                    top: '12mm',
+                    bottom: '12mm',
+                    left: '12mm',
+                    right: '12mm'
+                },
+                // Larger scale for better readability
+                scale: 1.0,
+                width: '210mm',
+                height: '297mm'
+            });
             await page.close();
             const buildDisposition = (name: string) => {
                 const fallback = (name || "resume").replace(/[^\x20-\x7E]/g, "_");

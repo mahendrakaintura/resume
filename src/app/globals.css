@@ -29,8 +29,32 @@ body {
 /* Only apply height/overflow constraints in print mode */
 @media print {
   .a4 {
-    max-height: 297mm;
-    overflow: hidden;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+    position: relative;
+  }
+}
+
+/* Print-specific layout fixes */
+@media print {
+  * {
+    box-sizing: border-box !important;
+  }
+
+  /* Fix positioning issues */
+  .absolute {
+    position: absolute !important;
+  }
+
+  .relative {
+    position: relative !important;
+  }
+
+  /* Ensure proper spacing */
+  .rirekisho {
+    position: relative !important;
   }
 }
 
@@ -256,11 +280,15 @@ body {
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    margin: 0;
+    padding: 0;
+    line-height: 1.3;
   }
 
   .print-surface {
     background: transparent;
     padding: 0;
+    margin: 0;
   }
 
   .cell-input {
@@ -268,35 +296,155 @@ body {
     background: transparent !important;
   }
 
-  /* Enforce 2-page limit */
+  /* Fix page sizing and prevent overlap */
   .a4 {
-    max-height: 277mm !important;
-    overflow: hidden !important;
+    width: 210mm !important;
+    max-height: 297mm !important;
+    overflow: visible !important;
+    page-break-after: auto;
+    position: relative;
+    box-sizing: border-box;
+    padding: 8mm 10mm !important;
   }
 
-  /* Compact spacing for education/work history */
-  .rirekisho .cell {
-    padding: 1mm 1.2mm !important;
-    font-size: 9pt !important;
-    line-height: 1.2 !important;
+  /* Only break after last page */
+  .a4:last-child {
+    page-break-after: avoid !important;
   }
 
-  /* Reduce section spacing */
+  /* Ensure proper page breaks only where needed */
+  .page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+    height: 1mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Fix absolute positioning for print */
+  .rirekisho .photo-slot {
+    position: fixed !important;
+    right: 8mm !important;
+    top: 4mm !important;
+    z-index: 10 !important;
+    width: 30mm !important;
+    height: 40mm !important;
+  }
+
+  /* Ensure content doesn't overlap with photo */
+  .rirekisho div[class*="pr-[34mm]"] {
+    padding-right: 36mm !important;
+  }
+
+  /* Prevent content overflow */
   .rirekisho table {
     margin-top: 2mm !important;
     margin-bottom: 2mm !important;
+    table-layout: fixed !important;
+    width: 100% !important;
   }
 
-  /* Tighter row heights */
+  /* More spacious cell spacing */
+  .rirekisho .cell {
+    padding: 1.5mm 2mm !important;
+    font-size: 10pt !important;
+    line-height: 1.3 !important;
+    overflow: hidden !important;
+    word-wrap: break-word !important;
+  }
+
+  /* Generous row heights */
   .rirekisho tbody tr {
     height: auto !important;
-    min-height: 6mm !important;
+    min-height: 8mm !important;
   }
 
-  /* Prevent orphan rows */
-  .rirekisho tbody tr {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  /* Larger title size */
+  .rirekisho .r-title {
+    font-size: 22pt !important;
+    letter-spacing: 10px !important;
+    margin-bottom: 4mm !important;
+  }
+
+  /* More generous section margins */
+  .rirekisho>div {
+    margin-top: 3mm !important;
+    margin-bottom: 2mm !important;
+  }
+
+  /* Larger text areas */
+  .rirekisho textarea,
+  .rirekisho input {
+    border: 0.2mm dotted #555 !important;
+    background: transparent !important;
+    overflow: hidden !important;
+    padding: 1.5mm !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Spacious form sections */
+  .rirekisho .cell textarea {
+    min-height: 25mm !important;
+    height: auto !important;
+  }
+
+  /* Better padding */
+  .rirekisho section[class*="px-[8mm]"] {
+    padding-left: 6mm !important;
+    padding-right: 6mm !important;
+  }
+
+  .rirekisho section[class*="pt-[6mm]"] {
+    padding-top: 4mm !important;
+  }
+
+  .rirekisho section[class*="pb-[6mm]"] {
+    padding-bottom: 4mm !important;
+  }
+
+  /* Prevent page breaks inside elements */
+  .rirekisho tbody tr,
+  .avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Fix text areas and inputs in print */
+  .rirekisho textarea,
+  .rirekisho input {
+    border: 0.2mm dotted #555 !important;
+    background: transparent !important;
+    overflow: hidden !important;
+  }
+
+  /* Ensure sections don't overflow */
+  .rirekisho section {
+    overflow: hidden !important;
+  }
+
+  /* Larger content font */
+  .rirekisho {
+    font-size: 11pt !important;
+  }
+
+  /* Optimize spacing for export */
+  .print-layout .a4 {
+    padding: 6mm 8mm !important;
+  }
+
+  /* Ensure photo doesn't interfere */
+  .print-layout .photo-slot {
+    position: fixed !important;
+    right: 8mm !important;
+    top: 4mm !important;
+    width: 30mm !important;
+    height: 40mm !important;
+    z-index: 10 !important;
+  }
+
+  /* Content padding to avoid photo overlap */
+  .print-layout .rirekisho div[class*="pr-[34mm]"] {
+    padding-right: 34mm !important;
   }
 }
 
@@ -492,5 +640,40 @@ body {
   .responsive-edit .r-title {
     font-size: 16pt;
     letter-spacing: 2px;
+  }
+}
+
+/* Print layout fixes */
+.print-layout {
+  position: relative;
+}
+
+.print-layout .rirekisho {
+  position: relative;
+  z-index: 1;
+}
+
+.print-layout .photo-slot {
+  position: absolute;
+  z-index: 10;
+}
+
+/* Better print handling */
+@media print {
+  .print-layout {
+    position: relative;
+    overflow: visible;
+  }
+
+  .print-layout .a4 {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .print-layout .photo-slot {
+    position: fixed !important;
+    right: 8mm !important;
+    top: 4mm !important;
+    z-index: 10 !important;
   }
 }
