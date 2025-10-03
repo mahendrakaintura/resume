@@ -269,7 +269,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             <col style={{ width: "7mm" }} />
                             <col style={{ width: "12mm" }} />
                             <col style={{ width: "10mm" }} />
-                            <col style={{ width: "67.9mm" }} />
+                            <col style={{ width: "67.8mm" }} />
                             <col style={{ width: "18mm" }} />
                             <col style={{ width: "calc(100% - 130mm)" }} />
                         </colgroup>
