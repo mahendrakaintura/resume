@@ -269,9 +269,9 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             <col style={{ width: "7mm" }} />
                             <col style={{ width: "12mm" }} />
                             <col style={{ width: "10mm" }} />
-                            <col style={{ width: "67.8mm" }} />
-                            <col style={{ width: "18mm" }} />
-                            <col style={{ width: "calc(100% - 130mm)" }} />
+                            <col style={{ width: "47.8mm" }} />
+                            <col style={{ width: "20mm" }} />
+                            <col style={{ width: "calc(100% - 123.8mm)" }} />
                         </colgroup>
                         <tbody>
                             {/* Row: DOB + Nationality */}
