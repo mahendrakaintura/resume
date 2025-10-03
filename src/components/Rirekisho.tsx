@@ -264,14 +264,14 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 <div className="mt-[0mm]">
                     <table className="w-full table-fixed border-collapse">
                         <colgroup>
-                            <col style={{ width: "15mm" }} />
-                            <col style={{ width: "15mm" }} />
-                            <col style={{ width: "7mm" }} />
+                            <col style={{ width: "20mm" }} />
                             <col style={{ width: "15mm" }} />
                             <col style={{ width: "7mm" }} />
-                            <col style={{ width: "calc(100% - 109mm)" }} />
+                            <col style={{ width: "12mm" }} />
                             <col style={{ width: "10mm" }} />
-                            <col style={{ width: "40mm" }} />
+                            <col style={{ width: "67.9mm" }} />
+                            <col style={{ width: "18mm" }} />
+                            <col style={{ width: "calc(100% - 130mm)" }} />
                         </colgroup>
                         <tbody>
                             {/* Row: DOB + Nationality */}
@@ -293,39 +293,40 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         value={data.birthMonth || ""}
                                         editable={editable}
                                         onChange={onChange}
+                                        placeholder=""
                                     />
                                 </td>
                                 <td className="cell text-center text-[9pt]">月</td>
                                 <td className="cell" style={{ overflow: 'hidden' }}>
                                     {editable ? (
-                                        <div className="flex items-center gap-[0.3mm] whitespace-nowrap leading-none no-break-ja text-[9pt]">
-                                            <span className="inline-block w-[10mm] text-center">
+                                        <div className="flex items-center justify-start gap-[0.5mm] whitespace-nowrap leading-none no-break-ja text-[10pt]">
+                                            <div className="w-[14mm] text-center">
                                                 <EditableCell
                                                     field="birthDay"
                                                     value={data.birthDay || ""}
                                                     editable={editable}
                                                     onChange={onChange}
-                                                    className="inline-cell"
+                                                    className="inline-cell text-center"
                                                     placeholder=""
                                                 />
-                                            </span>
-                                            <span className="text-[8pt] leading-none">日生（満</span>
-                                            <span className="inline-block w-[8mm] text-center">
+                                            </div>
+                                            <span className="text-[10pt] leading-none">日生（満</span>
+                                            <div className="w-[6mm] text-center">
                                                 <EditableCell
                                                     field="age"
                                                     value={data.age || ""}
                                                     editable={editable}
                                                     onChange={onChange}
-                                                    className="inline-cell"
+                                                    className="inline-cell text-center"
                                                     placeholder=""
                                                 />
-                                            </span>
-                                            <span className="text-[8pt] leading-none">歳）</span>
+                                            </div>
+                                            <span className="text-[10pt] leading-none">歳）</span>
                                         </div>
                                     ) : (
                                         <div
-                                            className="no-break-ja text-[9pt]"
-                                            style={{ paddingRight: '0.5mm', display: 'inline-flex', alignItems: 'baseline', gap: '0.3mm', maxWidth: '100%', overflow: 'hidden' }}
+                                            className="no-break-ja text-[10pt] flex items-baseline gap-[0.3mm]"
+                                            style={{ paddingRight: '0.5mm', maxWidth: '100%', overflow: 'hidden' }}
                                         >
                                             <span>{data.birthDay || "\u00A0"}</span>
                                             <span>日生（満</span>

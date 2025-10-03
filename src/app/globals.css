@@ -209,6 +209,11 @@ body {
   box-sizing: border-box;
 }
 
+/* Override text alignment when text-center class is applied */
+.cell-input.text-center {
+  text-align: center;
+}
+
 .cell-input:focus {
   background: #f8fafc;
   border: 1px solid #2563eb;
