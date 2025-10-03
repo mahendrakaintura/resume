@@ -29,6 +29,8 @@ export default function Home() {
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [showId, setShowId] = useState(false);
   const [data, setData] = useState<RirekishoData>(defaultValues);
+  const [isFirstSave, setIsFirstSave] = useState(true);
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
   // Load draft from localStorage once on mount
   useEffect(() => {
@@ -45,6 +47,7 @@ export default function Home() {
 
       if (savedId) {
         setResumeId(savedId);
+        setIsFirstSave(false); // Resume already exists, so not first save
       }
     } catch { /* ignore */ }
   }, []);
@@ -72,30 +75,38 @@ export default function Home() {
   };
 
   // Handle loading resume from ResumeLoader component
-  const handleResumeLoad = (loadedData: any, loadedResumeId: string) => {
-    setData(loadedData);
+  const handleResumeLoad = (resumeData: RirekishoData, loadedResumeId: string) => {
+    setData(resumeData);
     setResumeId(loadedResumeId);
+    setIsFirstSave(false);
+    setShowSaveSuccess(false);
     localStorage.setItem("rirekisho:savedId", loadedResumeId);
-  };
-
-  const onClear = () => {
-    if (!confirm("全ての入力をクリアしますか？ (This will clear unsaved local draft)")) return;
-    try {
-      localStorage.removeItem("rirekisho:draft");
-      localStorage.removeItem("rirekisho:unsaved"); // Also clear unsaved export data
-      localStorage.removeItem("rirekisho:savedId"); // Clear saved ID
-    } catch { /* ignore */ }
-    // Create fresh copy of defaultValues to ensure no reference issues
-    const freshData: RirekishoData = {
-      ...defaultValues,
-      education: (defaultValues.education || []).map(e => ({ ...e })),
-      work: (defaultValues.work || []).map(w => ({ ...w })),
-      qualifications: (defaultValues.qualifications || []).map(q => ({ ...q })),
-      languages: [],
+  };    const onClear = () => {
+    localStorage.removeItem("rirekisho:draft");
+    localStorage.removeItem("rirekisho:savedId");
+    const freshData = {
+      name: "",
+      furigana: "",
+      birthYear: "",
+      birthMonth: "",
+      birthDay: "",
+      age: "",
+      gender: "",
+      nationality: "",
+      address: "",
+      addressFurigana: "",
+      phone: "",
+      email: "",
+      education: [],
+      work: [],
+      qualifications: [],
+      notes: "",
       skills: []
     };
     setData(freshData);
     setResumeId(null);
+    setIsFirstSave(true);
+    setShowSaveSuccess(false);
   };
 
   const onSave = async () => {
@@ -113,7 +124,15 @@ export default function Home() {
       setResumeId(json.id);
       localStorage.setItem("rirekisho:savedId", json.id);
 
-      alert(`Saved! Your Resume ID: ${json.id}`);
+      // Only show popup on first save or if it's a new resume
+      if (isFirstSave || !resumeId) {
+        alert(`Saved! Your Resume ID: ${json.id}`);
+        setIsFirstSave(false);
+      } else {
+        // Show non-intrusive feedback for subsequent saves
+        setShowSaveSuccess(true);
+        setTimeout(() => setShowSaveSuccess(false), 2000);
+      }
     } catch (e: any) {
       alert("Save failed: " + e.message);
     } finally {
@@ -156,8 +175,13 @@ export default function Home() {
         <div className="flex flex-col gap-3">
           {/* First row - Save/Clear buttons and Resume ID */}
           <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={onSave} disabled={saving} className="btn-primary">
+            <button onClick={onSave} disabled={saving} className="btn-primary relative">
               {saving ? "Saving..." : "Save"}
+              {showSaveSuccess && (
+                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
+                  ✓
+                </span>
+              )}
             </button>
             <button onClick={onClear} className="btn text-red-600 border-red-300">
               Clear
