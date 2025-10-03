@@ -151,8 +151,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Fixed Header - Hides on scroll */}
-      <div className="sticky top-0 left-0 right-0 bg-slate-50 z-40 px-6 py-4 border-b border-slate-200 shadow-sm backdrop-blur-sm">
+      {/* Header - Scrolls with page */}
+      <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 shadow-sm">
         <div className="flex flex-col gap-3">
           {/* First row - Save/Clear buttons and Resume ID */}
           <div className="flex items-center gap-2 flex-wrap">
