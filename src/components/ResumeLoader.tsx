@@ -60,10 +60,10 @@ export default function ResumeLoader({ onLoad }: ResumeLoaderProps) {
                     <div className="relative flex-1 lg:w-80">
                         <input
                             type="text"
-                            placeholder="Enter Resume ID (e.g., clm...)"
+                            placeholder="Enter your id here"
                             value={searchId}
                             onChange={(e) => setSearchId(e.target.value)}
-                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8"
+                            className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8 placeholder-gray-500"
                             onKeyPress={(e) => e.key === "Enter" && loadResume()}
                         />
                         {searchId && (
