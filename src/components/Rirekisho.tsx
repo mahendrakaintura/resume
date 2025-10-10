@@ -537,9 +537,11 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         || schoolTextN.includes("職歴")
                                                         || schoolTextN.includes("アルバイト");
                                                     const isRight = schoolTextN === "以上";
-                                                    const tdStyle: React.CSSProperties = isRight
-                                                        ? { textAlign: 'right' }
-                                                        : (isCentered ? { textAlign: 'center' } : {});
+                                                    const isHeader = schoolTextN.includes("学歴") || schoolTextN.includes("職歴");
+                                                    const tdStyle: React.CSSProperties = {
+                                                        ...(isRight ? { textAlign: 'right' } : (isCentered ? { textAlign: 'center' } : {})),
+                                                        ...(isHeader ? { fontSize: '12pt' } : {})
+                                                    };
 
                                                     return (
                                                         <td className={`${editable ? "cell" : "cell cell-wrap"}`} style={tdStyle}>
@@ -647,10 +649,12 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                     const companyTextN = normalize(companyTextRaw);
                                                     const isCentered = companyTextN.includes("職歴") || companyTextN.includes("アルバイト");
                                                     const isRight = companyTextN === "以上";
+                                                    const isHeader = companyTextN.includes("職歴");
                                                     const displayText = `${w.company || ""}${w.role ? ` ／ ${w.role}` : ""}`;
-                                                    const tdStyle: React.CSSProperties = isRight
-                                                        ? { textAlign: 'right' }
-                                                        : (isCentered ? { textAlign: 'center' } : {});
+                                                    const tdStyle: React.CSSProperties = {
+                                                        ...(isRight ? { textAlign: 'right' } : (isCentered ? { textAlign: 'center' } : {})),
+                                                        ...(isHeader ? { fontSize: '12pt' } : {})
+                                                    };
 
                                                     return (
                                                         <td className={`${editable ? "cell" : "cell cell-wrap"}`} style={tdStyle}>
