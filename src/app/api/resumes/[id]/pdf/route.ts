@@ -63,6 +63,10 @@ export async function GET(_: Request, context: any) {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": buildDisposition(resume.title),
+        // Prevent viewer/browser caching so style changes are always visible
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0",
       },
     });
   } finally {

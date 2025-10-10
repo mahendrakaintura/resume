@@ -238,15 +238,22 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 {/* Row: Name + Gender input */}
                                 <tr className="r-row-lg">
                                     <th className="cell label">氏　名</th>
-                                    <td className="cell" colSpan={2} style={{ fontSize: "16pt" }}>
-                                        <EditableCell
-                                            field="name"
-                                            value={data.name || ""}
-                                            editable={editable}
-                                            onChange={onChange}
-                                            className="text-center"
-                                        />
-                                    </td>
+                                    {(() => {
+                                        const nameLen = (data.name || "").trim().length;
+                                        // Adaptive size: short names larger, long names slightly smaller to fit neatly
+                                        const nameFont = nameLen <= 16 ? "16pt" : nameLen <= 24 ? "14pt" : "12pt";
+                                        return (
+                                            <td className="cell" colSpan={2} style={{ fontSize: nameFont }}>
+                                                <EditableCell
+                                                    field="name"
+                                                    value={data.name || ""}
+                                                    editable={editable}
+                                                    onChange={onChange}
+                                                    className="text-center"
+                                                />
+                                            </td>
+                                        );
+                                    })()}
                                     <td className="cell text-center">
                                         <EditableCell
                                             field="gender"
