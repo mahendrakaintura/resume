@@ -533,19 +533,36 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         monthPart || (e.from || "").split('-')[1] || "\u00A0"
                                                     )}
                                                 </td>
-                                                <td className={editable ? "cell" : "cell cell-wrap"}>
-                                                    {editable ? (
-                                                        <input
-                                                            type="text"
-                                                            className="cell-input"
-                                                            value={e.school || ""}
-                                                            onChange={(ev) => updateEducation(entry.index, { school: ev.target.value })}
-                                                        />
-                                                    ) : (
-                                                        // Show school name even if empty string
-                                                        e.school !== undefined ? e.school : "\u00A0"
-                                                    )}
-                                                </td>
+                                                {(() => {
+                                                    const schoolTextRaw = (e.school || "").trim();
+                                                    const normalize = (s: string) => s
+                                                        .replace(/\s+/g, "")
+                                                        .replace(/[（）]/g, (m) => (m === '（' ? '(' : ')'))
+                                                        .replace(/[\.・]/g, "");
+                                                    const schoolTextN = normalize(schoolTextRaw);
+                                                    const isCentered = schoolTextN.includes("学歴")
+                                                        || schoolTextN.includes("職歴")
+                                                        || schoolTextN.includes("アルバイト");
+                                                    const isRight = schoolTextN === "以上";
+                                                    const tdStyle: React.CSSProperties = isRight
+                                                        ? { textAlign: 'right' }
+                                                        : (isCentered ? { textAlign: 'center' } : {});
+
+                                                    return (
+                                                        <td className={`${editable ? "cell" : "cell cell-wrap"}`} style={tdStyle}>
+                                                            {editable ? (
+                                                                <input
+                                                                    type="text"
+                                                                    className={`cell-input ${isCentered ? "text-center" : ""} ${isRight ? "text-right" : ""}`}
+                                                                    value={e.school || ""}
+                                                                    onChange={(ev) => updateEducation(entry.index, { school: ev.target.value })}
+                                                                />
+                                                            ) : (
+                                                                e.school !== undefined ? e.school : "\u00A0"
+                                                            )}
+                                                        </td>
+                                                    );
+                                                })()}
                                                 {editable && (
                                                     <td className="cell text-center">
                                                         <div className="flex items-center justify-center gap-1">
@@ -628,23 +645,39 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         monthPart || (w.from || "").split('-')[1] || "\u00A0"
                                                     )}
                                                 </td>
-                                                <td className={editable ? "cell" : "cell cell-wrap"}>
-                                                    {editable ? (
-                                                        <input
-                                                            type="text"
-                                                            className="cell-input"
-                                                            value={`${w.company || ""}${w.role ? ` ／ ${w.role}` : ""}`}
-                                                            onChange={(ev) => {
-                                                                const value = ev.target.value;
-                                                                const [company, role] = value.split(" ／ ");
-                                                                updateWork(entry.index, { company: company || "", role: role || "" });
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        // Show company data even if empty string
-                                                        w.company !== undefined ? `${w.company}${w.role ? ` ／ ${w.role}` : ""}` : "\u00A0"
-                                                    )}
-                                                </td>
+                                                {(() => {
+                                                    const companyTextRaw = (w.company || "").trim();
+                                                    const normalize = (s: string) => s
+                                                        .replace(/\s+/g, "")
+                                                        .replace(/[（）]/g, (m) => (m === '（' ? '(' : ')'))
+                                                        .replace(/[\.・]/g, "");
+                                                    const companyTextN = normalize(companyTextRaw);
+                                                    const isCentered = companyTextN.includes("職歴") || companyTextN.includes("アルバイト");
+                                                    const isRight = companyTextN === "以上";
+                                                    const displayText = `${w.company || ""}${w.role ? ` ／ ${w.role}` : ""}`;
+                                                    const tdStyle: React.CSSProperties = isRight
+                                                        ? { textAlign: 'right' }
+                                                        : (isCentered ? { textAlign: 'center' } : {});
+
+                                                    return (
+                                                        <td className={`${editable ? "cell" : "cell cell-wrap"}`} style={tdStyle}>
+                                                            {editable ? (
+                                                                <input
+                                                                    type="text"
+                                                                    className={`cell-input ${isCentered ? "text-center" : ""} ${isRight ? "text-right" : ""}`}
+                                                                    value={displayText}
+                                                                    onChange={(ev) => {
+                                                                        const value = ev.target.value;
+                                                                        const [company, role] = value.split(" ／ ");
+                                                                        updateWork(entry.index, { company: company || "", role: role || "" });
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                w.company !== undefined ? displayText : "\u00A0"
+                                                            )}
+                                                        </td>
+                                                    );
+                                                })()}
                                                 {editable && (
                                                     <td className="cell text-center">
                                                         <div className="flex items-center justify-center gap-1">

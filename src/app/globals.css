@@ -214,6 +214,16 @@ body {
   text-align: center;
 }
 
+/* Center alignment for display mode (PDF export) */
+.text-center {
+  text-align: center !important;
+}
+
+/* Right alignment for display mode (PDF export) */
+.text-right {
+  text-align: right !important;
+}
+
 .cell-input:focus {
   background: #f8fafc;
   border: 1px solid #2563eb;
