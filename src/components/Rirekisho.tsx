@@ -491,7 +491,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
 
                                         return (
                                             <tr key={`edu-${entry.index}`}>
-                                                <td className="cell">
+                                                <td className="cell text-center">
                                                     {editable ? (
                                                         <input
                                                             type="text"
@@ -512,7 +512,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         yearPart || (e.from || "").split('-')[0] || "\u00A0"
                                                     )}
                                                 </td>
-                                                <td className="cell">
+                                                <td className="cell text-center">
                                                     {editable ? (
                                                         <input
                                                             type="text"
@@ -548,17 +548,32 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 </td>
                                                 {editable && (
                                                     <td className="cell text-center">
-                                                        <button
-                                                            type="button"
-                                                            className="text-red-600 hover:text-red-800 text-[12pt]"
-                                                            onClick={() => {
-                                                                const updated = (data.education || []).filter((_, i) => i !== entry.index);
-                                                                onChange?.({ education: updated });
-                                                            }}
-                                                            title="削除"
-                                                        >
-                                                            ×
-                                                        </button>
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <button
+                                                                type="button"
+                                                                className="text-green-600 hover:text-green-800 text-[12pt] font-bold"
+                                                                onClick={() => {
+                                                                    const newEducation = { from: "", to: "", school: "", note: "" };
+                                                                    const updated = [...(data.education || [])];
+                                                                    updated.splice(entry.index + 1, 0, newEducation);
+                                                                    onChange?.({ education: updated });
+                                                                }}
+                                                                title="この行の後に追加"
+                                                            >
+                                                                +
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="text-red-600 hover:text-red-800 text-[12pt]"
+                                                                onClick={() => {
+                                                                    const updated = (data.education || []).filter((_, i) => i !== entry.index);
+                                                                    onChange?.({ education: updated });
+                                                                }}
+                                                                title="削除"
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 )}
                                             </tr>
@@ -571,7 +586,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
 
                                         return (
                                             <tr key={`work-${entry.index}`}>
-                                                <td className="cell">
+                                                <td className="cell text-center">
                                                     {editable ? (
                                                         <input
                                                             type="text"
@@ -592,7 +607,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         yearPart || (w.from || "").split('-')[0] || "\u00A0"
                                                     )}
                                                 </td>
-                                                <td className="cell">
+                                                <td className="cell text-center">
                                                     {editable ? (
                                                         <input
                                                             type="text"
@@ -632,17 +647,32 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 </td>
                                                 {editable && (
                                                     <td className="cell text-center">
-                                                        <button
-                                                            type="button"
-                                                            className="text-red-600 hover:text-red-800 text-[12pt]"
-                                                            onClick={() => {
-                                                                const updated = (data.work || []).filter((_, i) => i !== entry.index);
-                                                                onChange?.({ work: updated });
-                                                            }}
-                                                            title="削除"
-                                                        >
-                                                            ×
-                                                        </button>
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <button
+                                                                type="button"
+                                                                className="text-green-600 hover:text-green-800 text-[12pt] font-bold"
+                                                                onClick={() => {
+                                                                    const newWork = { from: "", to: "", company: "", role: "", note: "" };
+                                                                    const updated = [...(data.work || [])];
+                                                                    updated.splice(entry.index + 1, 0, newWork);
+                                                                    onChange?.({ work: updated });
+                                                                }}
+                                                                title="この行の後に追加"
+                                                            >
+                                                                +
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="text-red-600 hover:text-red-800 text-[12pt]"
+                                                                onClick={() => {
+                                                                    const updated = (data.work || []).filter((_, i) => i !== entry.index);
+                                                                    onChange?.({ work: updated });
+                                                                }}
+                                                                title="削除"
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 )}
                                             </tr>
@@ -790,17 +820,32 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         </td>
                                         {editable && (
                                             <td className="cell text-center">
-                                                <button
-                                                    type="button"
-                                                    className="text-red-600 hover:text-red-800 text-[12pt]"
-                                                    onClick={() => {
-                                                        const updated = (data.qualifications || []).filter((_, idx) => idx !== i);
-                                                        onChange?.({ qualifications: updated });
-                                                    }}
-                                                    title="削除"
-                                                >
-                                                    ×
-                                                </button>
+                                                <div className="flex items-center justify-center gap-1">
+                                                    <button
+                                                        type="button"
+                                                        className="text-green-600 hover:text-green-800 text-[12pt] font-bold"
+                                                        onClick={() => {
+                                                            const newQual = { year: "", month: "", qualification: "" };
+                                                            const updated = [...(data.qualifications || [])];
+                                                            updated.splice(i + 1, 0, newQual);
+                                                            onChange?.({ qualifications: updated });
+                                                        }}
+                                                        title="この行の後に追加"
+                                                    >
+                                                        +
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="text-red-600 hover:text-red-800 text-[12pt]"
+                                                        onClick={() => {
+                                                            const updated = (data.qualifications || []).filter((_, idx) => idx !== i);
+                                                            onChange?.({ qualifications: updated });
+                                                        }}
+                                                        title="削除"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
                                             </td>
                                         )}
                                     </tr>
