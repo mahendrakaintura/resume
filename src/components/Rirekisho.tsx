@@ -230,6 +230,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                             value={data.furigana || ""}
                                             editable={editable}
                                             onChange={onChange}
+                                            className="text-center"
                                         />
                                     </td>
                                     <th className="cell label">性別</th>
@@ -237,12 +238,13 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 {/* Row: Name + Gender input */}
                                 <tr className="r-row-lg">
                                     <th className="cell label">氏　名</th>
-                                    <td className="cell" colSpan={2}>
+                                    <td className="cell" colSpan={2} style={{ fontSize: "16pt" }}>
                                         <EditableCell
                                             field="name"
                                             value={data.name || ""}
                                             editable={editable}
                                             onChange={onChange}
+                                            className="text-center"
                                         />
                                     </td>
                                     <td className="cell text-center">
@@ -469,17 +471,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                     });
                                 });
 
-                                // In edit mode, show all entries (including newly added blank ones)
-                                // In export mode, filter out empty entries to avoid blank rows
-                                const filtered = editable ? allEntries : allEntries.filter(entry => {
-                                    const data = entry.data;
-                                    if (entry.type === 'education') {
-                                        return data.from || data.to || data.school || data.note;
-                                    } else {
-                                        return data.from || data.to || data.company || data.role || data.note;
-                                    }
-                                });
-                                const entriesToRender = filtered;
+                                // Always render all entries (even blank) so newly added rows appear in PDF export too
+                                const entriesToRender = allEntries;
 
                                 // Render all entries with unified logic
                                 return entriesToRender.map((entry, globalIndex) => {
@@ -788,9 +781,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         <tbody>
                             {(() => {
                                 const provided = (data.qualifications || []);
-                                const rows = editable
-                                    ? provided
-                                    : provided.filter(q => q.year || q.month || q.qualification);
+                                // Always render all rows (even blank) so they appear in PDF export too
+                                const rows = provided;
                                 return rows.map((q, i) => (
                                     <tr key={`qual-${i}`}>
                                         <td className="cell text-center">
