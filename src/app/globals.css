@@ -353,7 +353,7 @@ td.cell.cell-wrap .cell-display {
 }
 
 .r-row-name {
-  height: 18mm;
+  height: 12mm;
 }
 
 .r-row-address-furigana {
@@ -482,7 +482,7 @@ td.cell.cell-wrap .cell-display {
   section.first-page .photo-slot {
     position: absolute !important;
     right: 0mm !important;
-    top: -22mm !important;
+    top: -11.5mm !important;
     z-index: 10 !important;
     width: 30mm !important;
     height: 40mm !important;

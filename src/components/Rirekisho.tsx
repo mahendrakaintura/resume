@@ -137,7 +137,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 {/* Title and date */}
                 <div className="flex items-start justify-between pr-[30mm]">
                     <div className="r-title">履 歴 書</div>
-                    <div className="text-[10pt] leading-tight mt-[2mm] mr-[6mm]">
+                    <div className="text-[10pt] leading-tight mt-[8mm] mr-[6mm]">
                         <div className="flex items-center gap-[0mm] r-header-compact">
                             <div className="flex items-center gap-[1mm]">
                                 <span className="inline-block w-[9mm]">
@@ -180,7 +180,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                 <div className={`${isExport ? 'mt-[3mm]' : 'mt-[4mm]'} relative`} style={{ position: 'relative' }}>
                     {/* Right: Photo - positioned absolutely to page for export */}
                     <div
-                        className={`photo-slot ${isExport ? 'fixed top-[6mm] right-[6mm]' : 'absolute right-[2mm] top-[-16mm]'}`}
+                        className={`photo-slot ${isExport ? 'absolute right-[8mm] top-[-15mm]' : 'absolute right-[2mm] top-[-19mm]'}`}
                         style={{ zIndex: 5 }}
                         onClick={onPickPhoto}
                         role={editable ? "button" : undefined}
