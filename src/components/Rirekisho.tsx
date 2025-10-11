@@ -222,9 +222,9 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             </colgroup>
                             <tbody>
                                 {/* Row: Furigana + Gender */}
-                                <tr className="r-row-sm">
+                                <tr className="r-row-sm r-row-name-furigana">
                                     <th className="cell label">フリガナ</th>
-                                    <td className="cell" colSpan={2}>
+                                    <td className="cell text-center" colSpan={2} style={{ fontSize: '14px' }}>
                                         <EditableCell
                                             field="furigana"
                                             value={data.furigana || ""}
@@ -236,24 +236,17 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                     <th className="cell label">性別</th>
                                 </tr>
                                 {/* Row: Name + Gender input */}
-                                <tr className="r-row-lg">
+                                <tr className="r-row-lg r-row-name">
                                     <th className="cell label">氏　名</th>
-                                    {(() => {
-                                        const nameLen = (data.name || "").trim().length;
-                                        // Adaptive size: short names larger, long names slightly smaller to fit neatly
-                                        const nameFont = nameLen <= 16 ? "16pt" : nameLen <= 24 ? "14pt" : "12pt";
-                                        return (
-                                            <td className="cell" colSpan={2} style={{ fontSize: nameFont }}>
-                                                <EditableCell
-                                                    field="name"
-                                                    value={data.name || ""}
-                                                    editable={editable}
-                                                    onChange={onChange}
-                                                    className="text-center"
-                                                />
-                                            </td>
-                                        );
-                                    })()}
+                                    <td className="cell" colSpan={2} style={{ fontSize: '14px' }}>
+                                        <EditableCell
+                                            field="name"
+                                            value={data.name || ""}
+                                            editable={editable}
+                                            onChange={onChange}
+                                            className="text-center"
+                                        />
+                                    </td>
                                     <td className="cell text-center">
                                         <EditableCell
                                             field="gender"
@@ -367,7 +360,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         </colgroup>
                         <tbody>
                             {/* Row: Address Furigana */}
-                            <tr className="r-row-sm">
+                            <tr className="r-row-sm r-row-address-furigana">
                                 <th className="cell label">フリガナ</th>
                                 <td className="cell">
                                     <EditableCell
@@ -380,7 +373,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                             </tr>
 
                             {/* Row: Address */}
-                            <tr className="r-row-md">
+                            <tr className="r-row-md r-row-address">
                                 <th className="cell label">現住所</th>
                                 <td className="cell">
                                     <div className="flex items-center gap-[2mm]">
@@ -547,7 +540,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                     const isHeader = schoolTextN.includes("学歴") || schoolTextN.includes("職歴");
                                                     const tdStyle: React.CSSProperties = {
                                                         ...(isRight ? { textAlign: 'right' } : (isCentered ? { textAlign: 'center' } : {})),
-                                                        ...(isHeader ? { fontSize: '12pt' } : {})
+                                                        ...(isHeader ? { fontSize: '11pt' } : {})
                                                     };
 
                                                     return (
@@ -660,7 +653,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                     const displayText = `${w.company || ""}${w.role ? ` ／ ${w.role}` : ""}`;
                                                     const tdStyle: React.CSSProperties = {
                                                         ...(isRight ? { textAlign: 'right' } : (isCentered ? { textAlign: 'center' } : {})),
-                                                        ...(isHeader ? { fontSize: '12pt' } : {})
+                                                        ...(isHeader ? { fontSize: '14pt' } : {})
                                                     };
 
                                                     return (

@@ -30,13 +30,17 @@ export async function POST(req: Request) {
         const browser = await getBrowser();
         try {
             const page = await browser.newPage();
+            // Always fetch fresh assets
+            await page.setCacheEnabled(false);
+            // Ensure @media print rules are applied during PDF generation
+            await page.emulateMediaType('print');
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
             // Seed data into localStorage, then go to print/unsaved which reads it and renders Rirekisho
             await page.goto(baseUrl, { waitUntil: "networkidle0" });
             await page.evaluate((payload) => {
                 localStorage.setItem("rirekisho:unsaved", JSON.stringify(payload));
             }, data);
-            await page.goto(`${baseUrl}/print/unsaved`, { waitUntil: "networkidle0" });
+            await page.goto(`${baseUrl}/print/unsaved?t=${Date.now()}`, { waitUntil: "networkidle0" });
             // Wait for the React client component to hydrate and load data from localStorage.
             // The PrintUnsavedClient shows a div with class 'print-surface' once data is loaded.
             await page.waitForSelector('.print-surface', { timeout: 5000 }).catch(() => { });

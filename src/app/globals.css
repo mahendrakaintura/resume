@@ -70,9 +70,39 @@ body {
 
 /* Display-only cell content (export/print). Keep generic block so regular fields stay left-aligned. */
 .cell-display {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
   height: 100%;
+}
+
+/* Strong vertical centering for the 氏名 (name) row value cell */
+.rirekisho tr.r-row-name>td.cell .cell-display {
+  justify-content: center;
+  line-height: 1;
+}
+
+@media print {
+  .rirekisho tr.r-row-name>td.cell .cell-display {
+    justify-content: center !important;
+    line-height: 1 !important;
+  }
+
+  /* Also center フリガナ value horizontally in PDF */
+  .rirekisho tr.r-row-name-furigana>td.cell .cell-display {
+    justify-content: center !important;
+  }
+
+  /* Bump print font size for 氏名 value cell only (keep フリガナ small) */
+  .rirekisho tr.r-row-name>td.cell {
+    font-size: 14pt !important;
+  }
+
+  /* Make 性別 text smaller in PDF - target last column cells */
+  .rirekisho tr.r-row-name-furigana th:last-child,
+  .rirekisho tr.r-row-name td:last-child {
+    font-size: 10pt !important;
+  }
 }
 
 /* Inline display fix: when an EditableCell must behave inline inside a flex row
@@ -85,6 +115,11 @@ body {
   border: 0.2mm dotted #777;
   border-radius: 0;
   text-align: center;
+}
+
+/* Multiline display cells should start at the top */
+td.cell.cell-wrap .cell-display {
+  align-items: flex-start;
 }
 
 /* Prevent line breaks for CJK text segments such as "日生（満 xx 歳）" */
@@ -310,6 +345,62 @@ body {
 
 .r-row-lg {
   height: 15mm;
+}
+
+/* Specific taller rows by request */
+.r-row-name-furigana {
+  height: 10mm;
+}
+
+.r-row-name {
+  height: 18mm;
+}
+
+.r-row-address-furigana {
+  height: 12mm;
+}
+
+.r-row-address {
+  height: 18mm;
+}
+
+@media print {
+  .r-row-name-furigana {
+    height: 22mm !important;
+  }
+
+  .r-row-name {
+    height: 22mm !important;
+  }
+
+  .r-row-address-furigana {
+    height: 12mm !important;
+  }
+
+  .r-row-address {
+    height: 26mm !important;
+  }
+
+  /* Enforce heights on cells too so tables respect row heights in PDF */
+  tr.r-row-name-furigana>th.cell,
+  tr.r-row-name-furigana>td.cell {
+    height: 10mm !important;
+  }
+
+  tr.r-row-name>th.cell,
+  tr.r-row-name>td.cell {
+    height: 18mm !important;
+  }
+
+  tr.r-row-address-furigana>th.cell,
+  tr.r-row-address-furigana>td.cell {
+    height: 10mm !important;
+  }
+
+  tr.r-row-address>th.cell,
+  tr.r-row-address>td.cell {
+    height: 22mm !important;
+  }
 }
 
 /* Visually extend an input 30mm to the right of its cell (overlays, does not move borders) */

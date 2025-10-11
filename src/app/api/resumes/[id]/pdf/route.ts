@@ -24,8 +24,13 @@ export async function GET(_: Request, context: any) {
   const browser = await getBrowser();
   try {
     const page = await browser.newPage();
+    // Always fetch fresh assets
+    await page.setCacheEnabled(false);
+    // Ensure @media print rules are applied
+    await page.emulateMediaType('print');
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const url = `${baseUrl}/print/${id}`;
+    // Add cache-busting query so CSS/JS updates are not reused from memory
+    const url = `${baseUrl}/print/${id}?t=${Date.now()}`;
     await page.goto(url, { waitUntil: "networkidle0" });
 
     // Wait for styles and layout to stabilize
