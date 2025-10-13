@@ -327,7 +327,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         </div>
                                     ) : (
                                         <div
-                                            className="no-break-ja text-[10pt] flex items-baseline gap-[0.3mm]"
+                                            className={`no-break-ja text-[10pt] flex items-baseline gap-[0.3mm] ${!editable ? 'justify-center' : ''}`}
                                             style={{ paddingRight: '0.5mm', maxWidth: '100%', overflow: 'hidden' }}
                                         >
                                             <span>{data.birthDay || "\u00A0"}</span>

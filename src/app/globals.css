@@ -103,6 +103,11 @@ body {
   .rirekisho tr.r-row-name td:last-child {
     font-size: 10pt !important;
   }
+
+  /* Center birth date row content in PDF */
+  .rirekisho tr.r-row-md .cell {
+    text-align: center !important;
+  }
 }
 
 /* Inline display fix: when an EditableCell must behave inline inside a flex row
