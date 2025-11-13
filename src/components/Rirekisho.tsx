@@ -277,7 +277,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                         </colgroup>
                         <tbody>
                             {/* Row: DOB + Nationality */}
-                            <tr className="r-row-md r-row-birth-date">
+                            <tr className="r-row-md">
                                 <th className="cell label">生年月日</th>
                                 <td className="cell text-center">
                                     <EditableCell

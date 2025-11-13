@@ -104,16 +104,8 @@ body {
     font-size: 10pt !important;
   }
 
-  /* Center birth date row content in PDF - specific targeting */
-  .rirekisho tr.r-row-birth-date .cell {
-    text-align: center !important;
-  }
-
-  .rirekisho tr.r-row-birth-date .cell .cell-display {
-    justify-content: center !important;
-  }
-
-  .rirekisho tr.r-row-birth-date .cell input {
+  /* Center birth date row content in PDF */
+  .rirekisho tr.r-row-md .cell {
     text-align: center !important;
   }
 }
