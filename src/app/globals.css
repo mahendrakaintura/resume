@@ -683,6 +683,11 @@ td.cell.cell-wrap .cell-display {
   overflow-x: auto;
 }
 
+/* Reserve right-side space in edit mode so the photo doesn't overlap inputs */
+.responsive-edit .rirekisho div[class*="pr-[34mm]"] {
+  padding-right: 36mm !important;
+}
+
 @media (max-width: 768px) {
 
   /* Mobile styles for edit mode only */

@@ -798,7 +798,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                     id={`qual-year-${i}`}
                                                     value={q.year || ""}
                                                     onChange={(ev) => {
-                                                        const year = ev.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+                                                        // Allow free numeric input for year (no hard truncation)
+                                                        const year = ev.target.value.replace(/[^0-9]/g, "");
                                                         const newQuals = [...(data.qualifications || [])];
                                                         newQuals[i] = { ...newQuals[i], year };
                                                         onChange?.({ qualifications: newQuals });
@@ -817,10 +818,9 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                     id={`qual-month-${i}`}
                                                     value={q.month || ""}
                                                     onChange={(ev) => {
-                                                        const raw = ev.target.value.replace(/[^0-9]/g, "").slice(0, 2);
-                                                        const mm = raw ? raw.padStart(2, "0") : "";
-                                                        const mmNum = mm ? Math.min(Math.max(parseInt(mm, 10), 1), 12) : 0;
-                                                        const month = mmNum ? String(mmNum).padStart(2, "0") : raw;
+                                                        // Allow free numeric input for month (no forced 1-12 clamping)
+                                                        const raw = ev.target.value.replace(/[^0-9]/g, "");
+                                                        const month = raw;
                                                         const newQuals = [...(data.qualifications || [])];
                                                         newQuals[i] = { ...newQuals[i], month };
                                                         onChange?.({ qualifications: newQuals });
