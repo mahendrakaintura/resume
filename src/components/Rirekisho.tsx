@@ -129,6 +129,13 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
 
     const isExport = !editable; // export/print mode (non-editable)
 
+    // Local draft for languages input so spaces can be entered while editing.
+    const [langDraft, setLangDraft] = React.useState<string>((data.languages || []).join("、"));
+
+    React.useEffect(() => {
+        setLangDraft((data.languages || []).join("、"));
+    }, [data.languages, editable]);
+
     return (
         <div className={`text-black ${editable ? 'responsive-edit' : 'print-layout'}`}>
             {/* Page 1 */}
@@ -930,13 +937,19 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                         <input
                                             type="text"
                                             className="w-full border-none outline-none text-[9pt] px-[2mm]"
-                                            value={(data.languages || []).join("、")}
-                                            onChange={(e) => {
-                                                const arr = e.target.value
+                                            value={langDraft}
+                                            onChange={(e) => setLangDraft(e.target.value)}
+                                            onBlur={() => {
+                                                const arr = langDraft
                                                     .split(/[,、]/)
                                                     .map((s) => s.trim())
                                                     .filter(Boolean);
                                                 onChange?.({ languages: arr });
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    (e.target as HTMLElement).blur();
+                                                }
                                             }}
                                             placeholder=""
                                         />
