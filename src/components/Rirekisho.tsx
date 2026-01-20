@@ -541,13 +541,10 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         .replace(/[\.・]/g, "");
                                                     const schoolTextN = normalize(schoolTextRaw);
                                                     const isCentered = schoolTextN.includes("学歴")
-                                                        || schoolTextN.includes("職歴")
-                                                        || schoolTextN.includes("アルバイト");
+                                                        || schoolTextN.includes("職歴");
                                                     const isRight = schoolTextN === "以上";
-                                                    const isHeader = schoolTextN.includes("学歴") || schoolTextN.includes("職歴");
                                                     const tdStyle: React.CSSProperties = {
-                                                        ...(isRight ? { textAlign: 'right' } : (isCentered ? { textAlign: 'center' } : {})),
-                                                        ...(isHeader ? { fontSize: '11pt' } : {})
+                                                        ...(isRight ? { textAlign: 'right' } : (isCentered ? { textAlign: 'center' } : {}))
                                                     };
 
                                                     return (
@@ -654,13 +651,11 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                         .replace(/[（）]/g, (m) => (m === '（' ? '(' : ')'))
                                                         .replace(/[\.・]/g, "");
                                                     const companyTextN = normalize(companyTextRaw);
-                                                    const isCentered = companyTextN.includes("職歴") || companyTextN.includes("アルバイト");
+                                                    const isCentered = companyTextN.includes("職歴");
                                                     const isRight = companyTextN === "以上";
-                                                    const isHeader = companyTextN.includes("職歴");
                                                     const displayText = `${w.company || ""}${w.role ? ` ／ ${w.role}` : ""}`;
                                                     const tdStyle: React.CSSProperties = {
-                                                        ...(isRight ? { textAlign: 'right' } : (isCentered ? { textAlign: 'center' } : {})),
-                                                        ...(isHeader ? { fontSize: '14pt' } : {})
+                                                        ...(isRight ? { textAlign: 'right' } : (isCentered ? { textAlign: 'center' } : {}))
                                                     };
 
                                                     return (
