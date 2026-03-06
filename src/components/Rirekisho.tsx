@@ -1,6 +1,90 @@
 "use client";
 import React from "react";
 
+// Auto-compact helper function to adjust font size based on content length
+const getAutoCompactStyle = (text: string | undefined, maxLength: number = 50): React.CSSProperties => {
+    const contentLength = text?.length || 0;
+    if (contentLength > maxLength * 2) {
+        return { fontSize: '7pt', lineHeight: 1.2 };
+    } else if (contentLength > maxLength) {
+        return { fontSize: '8pt', lineHeight: 1.25 };
+    }
+    return { fontSize: '9pt', lineHeight: 1.3 };
+};
+
+// Auto-compact textarea component
+const AutoCompactTextarea = ({
+    value,
+    onChange,
+    editable,
+    placeholder,
+    minHeight = "52mm",
+    maxLength = 50
+}: {
+    value?: string;
+    onChange?: (value: string) => void;
+    editable: boolean;
+    placeholder?: string;
+    minHeight?: string;
+    maxLength?: number;
+}) => {
+    const compactStyle = getAutoCompactStyle(value, maxLength);
+
+    if (editable) {
+        return (
+            <textarea
+                className="w-full resize-none border-none outline-none"
+                style={{ ...compactStyle, minHeight }}
+                value={value || ""}
+                onChange={(e) => onChange?.(e.target.value)}
+                placeholder={placeholder}
+            />
+        );
+    }
+    return (
+        <div className="text-[9pt] whitespace-pre-wrap h-full" style={compactStyle}>
+            {value}
+        </div>
+    );
+};
+
+// Auto-compact input component
+const AutoCompactInput = ({
+    value,
+    onChange,
+    editable,
+    placeholder,
+    className = "",
+    textAlign = "left" as const
+}: {
+    value?: string;
+    onChange?: (value: string) => void;
+    editable: boolean;
+    placeholder?: string;
+    className?: string;
+    textAlign?: "left" | "center" | "right";
+}) => {
+    const compactStyle = getAutoCompactStyle(value, 30);
+
+    if (editable) {
+        return (
+            <input
+                type="text"
+                className={`cell-input ${className}`}
+                style={{ ...compactStyle, textAlign }}
+                value={value || ""}
+                placeholder={placeholder}
+                onChange={(e) => onChange?.(e.target.value)}
+            />
+        );
+    }
+    return (
+        <div className={`cell-display ${className}`} style={{ ...compactStyle, justifyContent: textAlign === 'center' ? 'center' : textAlign === 'right' ? 'flex-end' : 'flex-start' }}>
+            {value || ""}
+        </div>
+    );
+};
+
 export type RirekishoData = {
     name: string;
     furigana?: string;
@@ -837,6 +921,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                 <input
                                                     type="text"
                                                     className="cell-input"
+                                                    style={getAutoCompactStyle(q.qualification, 30)}
                                                     value={q.qualification || ""}
                                                     onChange={(ev) => {
                                                         const newQuals = [...(data.qualifications || [])];
@@ -846,7 +931,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                                     placeholder="資格名を入力"
                                                 />
                                             ) : (
-                                                q.qualification || "\u00A0"
+                                                <div style={getAutoCompactStyle(q.qualification, 30)}>{q.qualification || "\u00A0"}</div>
                                             )}
                                         </td>
                                         {editable && (
@@ -931,7 +1016,8 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                     {editable ? (
                                         <input
                                             type="text"
-                                            className="w-full border-none outline-none text-[9pt] px-[2mm]"
+                                            className="w-full border-none outline-none px-[2mm]"
+                                            style={getAutoCompactStyle(langDraft, 50)}
                                             value={langDraft}
                                             onChange={(e) => setLangDraft(e.target.value)}
                                             onBlur={() => {
@@ -949,7 +1035,7 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                             placeholder=""
                                         />
                                     ) : (
-                                        <div className="text-[9pt] px-[2mm]">{(data.languages || []).join("、")}</div>
+                                        <div className="px-[2mm]" style={getAutoCompactStyle((data.languages || []).join("、"), 50)}>{(data.languages || []).join("、")}</div>
                                     )}
                                 </td>
                             </tr>
@@ -975,23 +1061,25 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <td className="cell align-top p-[2mm]" style={isExport ? { minHeight: "22mm", borderRightStyle: "dotted" } : { height: "28mm", borderRightStyle: "dotted" }}>
                                     {editable ? (
                                         <textarea
-                                            className="w-full h-full resize-none border-none outline-none text-[9pt]"
+                                            className="w-full h-full resize-none border-none outline-none"
+                                            style={getAutoCompactStyle(data.specialty, 100)}
                                             value={data.specialty || ""}
                                             onChange={(e) => onChange?.({ specialty: e.target.value })}
                                         />
                                     ) : (
-                                        <div className="text-[9pt] whitespace-pre-wrap">{data.specialty}</div>
+                                        <div style={getAutoCompactStyle(data.specialty, 100)} className="whitespace-pre-wrap">{data.specialty}</div>
                                     )}
                                 </td>
                                 <td className="cell align-top p-[2mm]" style={isExport ? { minHeight: "22mm" } : { height: "28mm" }}>
                                     {editable ? (
                                         <textarea
-                                            className="w-full h-full resize-none border-none outline-none text-[9pt]"
+                                            className="w-full h-full resize-none border-none outline-none"
+                                            style={getAutoCompactStyle(data.partTimeExperience, 100)}
                                             value={data.partTimeExperience || ""}
                                             onChange={(e) => onChange?.({ partTimeExperience: e.target.value })}
                                         />
                                     ) : (
-                                        <div className="text-[9pt] whitespace-pre-wrap">{data.partTimeExperience}</div>
+                                        <div style={getAutoCompactStyle(data.partTimeExperience, 100)} className="whitespace-pre-wrap">{data.partTimeExperience}</div>
                                     )}
                                 </td>
                             </tr>
@@ -1010,12 +1098,13 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <td className="cell p-[2mm]" style={isExport ? { minHeight: "40mm", height: "40mm", borderTop: "0", verticalAlign: "top" } : { height: "52mm", borderTop: "0", verticalAlign: "top" }}>
                                     {editable ? (
                                         <textarea
-                                            className="w-full h-full resize-none border-none outline-none text-[9pt]"
+                                            className="w-full h-full resize-none border-none outline-none"
+                                            style={getAutoCompactStyle(data.selfPR, 150)}
                                             value={data.selfPR || ""}
                                             onChange={(e) => onChange?.({ selfPR: e.target.value })}
                                         />
                                     ) : (
-                                        <div className="text-[9pt] whitespace-pre-wrap">{data.selfPR}</div>
+                                        <div style={getAutoCompactStyle(data.selfPR, 150)} className="whitespace-pre-wrap">{data.selfPR}</div>
                                     )}
                                 </td>
                             </tr>
@@ -1034,12 +1123,13 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <td className="cell p-[2mm]" style={isExport ? { minHeight: "40mm", height: "40mm", borderTop: "0", verticalAlign: "top" } : { height: "58mm", borderTop: "0", verticalAlign: "top" }}>
                                     {editable ? (
                                         <textarea
-                                            className="w-full h-full resize-none border-none outline-none text-[9pt]"
+                                            className="w-full h-full resize-none border-none outline-none"
+                                            style={getAutoCompactStyle(data.motivation, 150)}
                                             value={data.motivation || ""}
                                             onChange={(e) => onChange?.({ motivation: e.target.value })}
                                         />
                                     ) : (
-                                        <div className="text-[9pt] whitespace-pre-wrap">{data.motivation}</div>
+                                        <div style={getAutoCompactStyle(data.motivation, 150)} className="whitespace-pre-wrap">{data.motivation}</div>
                                     )}
                                 </td>
                             </tr>
@@ -1183,12 +1273,13 @@ export default function Rirekisho({ data, editable = false, onChange }: Props) {
                                 <td className="cell p-[2mm] h-full personal-requests-td" style={isExport ? { minHeight: "12mm", height: "100%" } : { minHeight: "24mm", height: "100%" }}>
                                     {editable ? (
                                         <textarea
-                                            className="w-full h-full resize-none border-none outline-none text-[9pt]"
+                                            className="w-full h-full resize-none border-none outline-none"
+                                            style={getAutoCompactStyle(data.personalRequests, 100)}
                                             value={data.personalRequests || ""}
                                             onChange={(e) => onChange?.({ personalRequests: e.target.value })}
                                         />
                                     ) : (
-                                        <div className="text-[9pt] whitespace-pre-wrap h-full">{data.personalRequests}</div>
+                                        <div style={getAutoCompactStyle(data.personalRequests, 100)} className="whitespace-pre-wrap h-full">{data.personalRequests}</div>
                                     )}
                                 </td>
                             </tr>
